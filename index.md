@@ -1,6 +1,28 @@
-# Ansible and AWS
+# Table of Contents
+1. [Ansible and AWS](#ansible-and-aws)
+   - [AWS Quick Start](#aws-quick-start)
+   - [Ansible Playbooks](#ansible-playbooks)
+   - [Launching the Demo](#launching-the-demo)
+   - [Instance Requirements](#instance-requirements)
+   - [Security Group Requirements](#security-group-requirements)
+   - [Further Reading](#further-reading)
+2. [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
+   - [Kadena Demo Quick Start](#kadena-demo-quick-start)
+   - [Kadena server and client binaries](#kadena-server-and-client-binaries)
+   - [General Considerations](#general-considerations)
+   - [Configuration](#configuration)
+   - [Interacting With a Running Cluster](#interacting-with-a-running-cluster)
+     - [Sample Usage: Payments demo](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance)
+     - [Sample Usage: Running Pact TodoMVC](#sample-usage-running-pact-todomvc)
+   - [Configuration File Documentation](#configuration-file-documentation)
 
-## QuickStart
+NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kadena Blockchain Documentation](#kadena-blockchain-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
+
+---
+# Ansible and AWS
+---
+
+## AWS Quick Start
 1. Spin up an EC2 instance with Kadena's ScalableBFT AMI or with the desired configurations
    (See [Instance Requirements](#instance-requirements)). This will serve as the Ansible monitor instance.
 2. Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
@@ -94,7 +116,7 @@ tmux
 aws/start_aws_demo.sh
 ```
 Press ENTER to run the commands that populates the shell. This will start the Kadena Client.
-See "Sample Usage: `[payments|monitor|todomvc]`" in `Kadena-README.md` for a list of supported interactions.
+See ["Sample Usage: `[payments|monitor|todomvc]`"](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance) in `Kadena-README.md` for a list of supported interactions.
 
 To exit the Kadena Client, type `exit`. To kill the tmux sessions, type `tmux kill-session`.
 
@@ -133,8 +155,8 @@ group to the Ansible monitor and Kadena server instances.
    <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script>
 
 
----
 
+---
 # Kadena Blockchain Documentation
 ---
 
@@ -180,7 +202,7 @@ A very specific version of tmux is required because features were entirely remov
 
 NB: The docker and script files for installing the Kadena dependencies can be found in `<kadena-directory>/setup`.
 
-### Quick Start
+### Kadena Demo Quick Start
 
 Quickly launch a local instance, see "Sample Usage: `[payments|monitor|todomvc]`" for interactions supported.
 
@@ -685,7 +707,7 @@ Each kadena node, while running, will host a performance monitor at the URL `<no
 
 #### Sample Usage: Running Pact TodoMVC
 
-This repo also bundles the [Pact TodoMVC](github.com/kadena-io/pact-todomvc). Each Kadena node will host the frontend at `<nodeId.host>:<nodeId.port>/todomvc`. To initialized the `todomvc`:
+This repo also bundles the [Pact TodoMVC](https://github.com/kadena-io/pact-todomvc). Each Kadena node will host the frontend at `<nodeId.host>:<nodeId.port>/todomvc`. To initialized the `todomvc`:
 
 ```
 $ cd <kadena-directory>

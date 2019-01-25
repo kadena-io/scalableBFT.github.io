@@ -50,48 +50,55 @@ You are now ready to start using the Ansible playbooks!
 
 ## Ansible Playbooks
 Playbooks are composed of `plays`, which are then composed of `tasks`. Plays
-and tasks are executed sequentially.
+and tasks are executed sequentially. Ansible playbooks are in YAML format and can be executed as follows:
+```
+ansible-playbook /path/to/playbook.yml
+```
 
-Ansible playbooks are in YAML format and can be executed as follows:
-`ansible-playbook /path/to/playbook.yml`. The `aws/` directory contains the
-following playbooks:
+The `aws/` directory contains the following playbooks:
 
-`start_instances.yml` : This playbook launches EC2 instances that have the
-                        necessary files and directories to run the Kadena
-                        Server executable. It also creates a file containing
-                        all of their private IP addresses and the default
-                        (i.e. SQLite backend) node configurations for each.
-                        This will create instances tagged as "kadena_server".
-                        This list of IP addresses will be located in
-                        `aws/ipAddr.yml`.
+### `start_instances.yml`
 
-`stop_instances.yml` : This playbook terminates all Kadena Server EC2
-                       instances.
+This playbook launches EC2 instances that have the necessary files and directories to run the Kadena Server executable. 
+It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each. 
+This will create instances tagged as "kadena_server". This list of IP addresses will be located in `aws/ipAddr.yml`.
 
-`run_servers.yml` : This playbooks runs the Kadena Server executable. If the
-                    servers were already running, it terminates them as well
-                    as cleans up their sqlite and log files before launching
-                    the server again. This playbook also updates the server's
-                    configuration if it has changed in the specified
-                    configuration directory (conf/) on the monitor instance.
-                    The Kadena Servers will run for 24 hours after starting.
-                    To change this, edit the `Start Kadena Servers` async
-                    section in this playbook.
+### `stop_instances.yml`
+This playbook terminates all Kadena Server EC2 instances.
 
-`get_server_logs.yml` : This playbook retrieves all of the Kadena Servers' logs
-                        and sqlite files, deleting all previous retrieved logs.
-                        It stores the logs in `aws/logs/`.
+### `run_servers.yml`
+This playbooks runs the Kadena Server executable. If the servers were already running, it terminates them as well as cleans up their sqlite and log files before launching the server again. 
+This playbook also updates the server's configuration if it has changed in the specified configuration directory (`conf/`) on the monitor instance. 
+The Kadena Servers will run for 24 hours after starting. To change this, edit the **Start Kadena Servers** async section in this playbook.
+
+### `get_server_logs.yml`
+This playbook retrieves all of the Kadena Servers' logs and sqlite files, deleting all previous retrieved logs. 
+It stores the logs in `aws/logs/`.
+
 
 NB: To change distributed nodes' configuration, run
 ```
 <kadena-directory>$ ./bin/<OS-name>/genconfs --distributed aws/ipAddr.yml
 ```
 Provide the desired settings when prompted. For more information, refer to the
-"Automated configuration generation: `genconfs`" section in `docs/Kadena-README.md`.
+["Automated configuration generation: `genconfs`"](#configuration) section in `docs/Kadena-README.md`.
 
 ## Launching the Demo
-The demo script assumes that the `start_instances.yml` playbook has been run and only
-four Kadena Server instances have been created. It also assumes the following directory structure:
+Once you've completed the [AWS Quick Start](#aws-quick-start) instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:
+```
+$ cd kadena-aws/
+$ ansible-playbook aws/start_instances.yml
+$ tmux
+$ ./aws/start_aws_demo.sh
+```
+Press Enter when prompted by `bin/ubuntu-16.04/kadenaclient.sh`. 
+This will start the Kadena Client and allow you to start interacting with the private blockchain (see the [`kadenaclient` binary explanation](#kadena-server-and-client-binaries) for more details).
+
+For a list of supported interactions, refer to the ["Sample Usage: `[payments|monitor|todomvc]`"](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance) section in `Kadena-README.md`.
+
+To exit the Kadena Client, type `exit`. To kill the tmux sessions, type `tmux kill-session`.
+
+The demo script assumes the following directory structure:
 ```
 $ tree <kadena-directory>
 <kadena-directory>
@@ -110,15 +117,6 @@ $ tree <kadena-directory>
         └── <all kadena executables>
 ```
 
-Navigate to `/path/to/kadena-directory` and run the following commands:
-```
-tmux
-aws/start_aws_demo.sh
-```
-Press ENTER to run the commands that populates the shell. This will start the Kadena Client.
-See ["Sample Usage: `[payments|monitor|todomvc]`"](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance) in `Kadena-README.md` for a list of supported interactions.
-
-To exit the Kadena Client, type `exit`. To kill the tmux sessions, type `tmux kill-session`.
 
 ## Instance Requirements
 The Ansible monitor instance and the Kadena server instances should be configured as follows:

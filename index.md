@@ -30,7 +30,8 @@ NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-RE
    will not work.
 3. Add the key pair(s) of the monitor and Kadena server instances to the `ssh-agent`:
    `ssh-add /path/to/keypair.pem`
-4. SSH into the monitor instance using ssh-agent forwarding: `ssh -A <instance-user>@<instance-public-dns>`.
+4. SSH into the monitor instance using ssh-agent forwarding: `ssh -A <instance-user>@<instance-public-dns>`. If using
+   Kadena's AWS listing, the `<instance-user>` is `ubuntu`.
    This facilitates the Ansible monitor's task of managing different instances by having access to their key pair.
 5. Once logged into the monitor instance, locate the directories containing the Kadena executables,
    the Kadena server node configurations, and the Ansible playbooks.

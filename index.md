@@ -19,9 +19,13 @@
 NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kadena Blockchain Documentation](#kadena-blockchain-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
 
 
+---
 # Ansible and AWS
 ---
+
 [![Kadena ScalableBFT AWS Marketplace quickStart video](https://img.youtube.com/vi/LHV00WLiXxA/0.jpg)](https://www.youtube.com/watch?v=LHV00WLiXxA)
+
+Watch the video above or follow the instructions below for AWS QuickStart instructions.
 
 ## AWS Quick Start
 1. Spin up an EC2 instance with Kadena's ScalableBFT AMI or with the desired configurations

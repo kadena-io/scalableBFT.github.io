@@ -23,7 +23,9 @@ NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-RE
 # Ansible and AWS
 ---
 
-[![Kadena ScalableBFT AWS Marketplace quickStart video](https://img.youtube.com/vi/LHV00WLiXxA/0.jpg)](https://www.youtube.com/watch?v=LHV00WLiXxA)
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=LHV00WLiXxA"><img src="https://img.youtube.com/vi/LHV00WLiXxA/0.jpg" alt="Kadena ScalableBFT AWS Marketplace QuickStart Video" target="_blank"></a>
+</div>
 
 Watch the video above or follow the instructions below for AWS QuickStart instructions.
 

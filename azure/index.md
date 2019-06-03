@@ -1,4 +1,9 @@
-# Table of Contents
+---
+title: ScalableBFT on Azure
+layout: default
+---
+
+## Table of Contents
 
 1.  [Ansible and Azure](#ansible-and-azure)
     - [Azure Quick Start](#azure-quick-start)

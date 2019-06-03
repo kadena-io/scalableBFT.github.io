@@ -1,26 +1,33 @@
-# Table of Contents
-1. [Ansible and AWS](#ansible-and-aws)
-   - [AWS Quick Start](#aws-quick-start)
-   - [Ansible Playbooks](#ansible-playbooks)
-   - [Launching the Demo](#launching-the-demo)
-   - [Instance Requirements](#instance-requirements)
-   - [Security Group Requirements](#security-group-requirements)
-   - [Further Reading](#further-reading)
-2. [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
-   - [Kadena Demo Quick Start](#kadena-demo-quick-start)
-   - [Kadena server and client binaries](#kadena-server-and-client-binaries)
-   - [General Considerations](#general-considerations)
-   - [Configuration](#configuration)
-   - [Interacting With a Running Cluster](#interacting-with-a-running-cluster)
-     - [Sample Usage: Payments demo](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance)
-     - [Sample Usage: Running Pact TodoMVC](#sample-usage-running-pact-todomvc)
-   - [Configuration File Documentation](#configuration-file-documentation)
+---
+title: ScalableBFT on AWS
+layout: default
+---
+
+## Table of Contents
+
+1.  [Ansible and AWS](#ansible-and-aws)
+    - [AWS Quick Start](#aws-quick-start)
+    - [Ansible Playbooks](#ansible-playbooks)
+    - [Launching the Demo](#launching-the-demo)
+    - [Instance Requirements](#instance-requirements)
+    - [Security Group Requirements](#security-group-requirements)
+    - [Further Reading](#further-reading)
+2.  [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
+    - [Kadena Demo Quick Start](#kadena-demo-quick-start)
+    - [Kadena server and client binaries](#kadena-server-and-client-binaries)
+    - [General Considerations](#general-considerations)
+    - [Configuration](#configuration)
+    - [Interacting With a Running Cluster](#interacting-with-a-running-cluster)
+      - [Sample Usage: Payments demo](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance)
+      - [Sample Usage: Running Pact TodoMVC](#sample-usage-running-pact-todomvc)
+    - [Configuration File Documentation](#configuration-file-documentation)
 
 NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kadena Blockchain Documentation](#kadena-blockchain-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
 
-
 ---
+
 # Ansible and AWS
+
 ---
 
 <div align="center">
@@ -30,35 +37,38 @@ NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-RE
 Watch the video above or follow the instructions below for AWS QuickStart instructions.
 
 ## AWS Quick Start
-1. Spin up an EC2 instance with Kadena's ScalableBFT AMI or with the desired configurations
-   (See [Instance Requirements](#instance-requirements)). This will serve as the Ansible monitor instance.
-2. Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
-   viewable: `chmod 400 /path/to/keypair.pem`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
-   will not work.
-3. Add the key pair(s) of the monitor and Kadena server instances to the `ssh-agent`:
-   `ssh-add /path/to/keypair.pem`
-4. SSH into the monitor instance using ssh-agent forwarding: `ssh -A <instance-user>@<instance-public-dns>`. If using
-   Kadena's AWS listing, the `<instance-user>` is `ubuntu`.
-   This facilitates the Ansible monitor's task of managing different instances by having access to their key pair.
-5. Once logged into the monitor instance, locate the directories containing the Kadena executables,
-   the Kadena server node configurations, and the Ansible playbooks.
-6. Edit the `ansible_vars.yml` to indicate the path to the Kadena executables and the node configurations.
-   Also indicate the number of EC2 instances designated as Kadena servers to launch as well as how to configure
-   them. See [Instance Requirements](#instance-requirements) and [Security Group Requirements](#security-group-requirements) for instance image
-   and security group specifics.
-7. Grant Ansible the ability to make API calls to AWS on your behalf. To do this, launch the monitor instance with
-   Power User IAM role or export AWS security credentials as environment variables:
-   ```
-   $ export AWS_ACCESS_KEY_ID='AK123'
-   $ export AWS_SECRET_ACCESS_KEY='abc123'
-   ```
-   Make sure to persist these environment variables when logging in and out of the monitor instance.
+
+1.  Spin up an EC2 instance with Kadena's ScalableBFT AMI or with the desired configurations
+    (See [Instance Requirements](#instance-requirements)). This will serve as the Ansible monitor instance.
+2.  Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
+    viewable: `chmod 400 /path/to/keypair.pem`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
+    will not work.
+3.  Add the key pair(s) of the monitor and Kadena server instances to the `ssh-agent`:
+    `ssh-add /path/to/keypair.pem`
+4.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <instance-user>@<instance-public-dns>`. If using
+    Kadena's AWS listing, the `<instance-user>` is `ubuntu`.
+    This facilitates the Ansible monitor's task of managing different instances by having access to their key pair.
+5.  Once logged into the monitor instance, locate the directories containing the Kadena executables,
+    the Kadena server node configurations, and the Ansible playbooks.
+6.  Edit the `ansible_vars.yml` to indicate the path to the Kadena executables and the node configurations.
+    Also indicate the number of EC2 instances designated as Kadena servers to launch as well as how to configure
+    them. See [Instance Requirements](#instance-requirements) and [Security Group Requirements](#security-group-requirements) for instance image
+    and security group specifics.
+7.  Grant Ansible the ability to make API calls to AWS on your behalf. To do this, launch the monitor instance with
+    Power User IAM role or export AWS security credentials as environment variables:
+    ```
+    $ export AWS_ACCESS_KEY_ID='AK123'
+    $ export AWS_SECRET_ACCESS_KEY='abc123'
+    ```
+    Make sure to persist these environment variables when logging in and out of the monitor instance.
 
 You are now ready to start using the Ansible playbooks!
 
 ## Ansible Playbooks
+
 Playbooks are composed of `plays`, which are then composed of `tasks`. Plays
 and tasks are executed sequentially. Ansible playbooks are in YAML format and can be executed as follows:
+
 ```
 ansible-playbook /path/to/playbook.yml
 ```
@@ -67,39 +77,46 @@ The `aws/` directory contains the following playbooks:
 
 ### `start_instances.yml`
 
-This playbook launches EC2 instances that have the necessary files and directories to run the Kadena Server executable. 
-It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each. 
+This playbook launches EC2 instances that have the necessary files and directories to run the Kadena Server executable.
+It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each.
 This will create instances tagged as "kadena_server". This list of IP addresses will be located in `aws/ipAddr.yml`.
 
 ### `stop_instances.yml`
+
 This playbook terminates all Kadena Server EC2 instances.
 
 ### `run_servers.yml`
-This playbooks runs the Kadena Server executable. If the servers were already running, it terminates them as well as cleans up their sqlite and log files before launching the server again. 
-This playbook also updates the server's configuration if it has changed in the specified configuration directory (`conf/`) on the monitor instance. 
+
+This playbooks runs the Kadena Server executable. If the servers were already running, it terminates them as well as cleans up their sqlite and log files before launching the server again.
+This playbook also updates the server's configuration if it has changed in the specified configuration directory (`conf/`) on the monitor instance.
 The Kadena Servers will run for 24 hours after starting. To change this, edit the **Start Kadena Servers** async section in this playbook.
 
 ### `get_server_logs.yml`
-This playbook retrieves all of the Kadena Servers' logs and sqlite files, deleting all previous retrieved logs. 
+
+This playbook retrieves all of the Kadena Servers' logs and sqlite files, deleting all previous retrieved logs.
 It stores the logs in `aws/logs/`.
 
-
 NB: To change distributed nodes' configuration, run
+
 ```
 <kadena-directory>$ ./bin/<OS-name>/genconfs --distributed aws/ipAddr.yml
 ```
+
 Provide the desired settings when prompted. For more information, refer to the
 ["Automated configuration generation: `genconfs`"](#configuration) section in `docs/Kadena-README.md`.
 
 ## Launching the Demo
+
 Once you've completed the [AWS Quick Start](#aws-quick-start) instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:
+
 ```
 $ cd kadena-aws/
 $ ansible-playbook aws/start_instances.yml
 $ tmux
 $ ./aws/start_aws_demo.sh
 ```
-Press Enter when prompted by `bin/ubuntu-16.04/kadenaclient.sh`. 
+
+Press Enter when prompted by `bin/ubuntu-16.04/kadenaclient.sh`.
 This will start the Kadena Client and allow you to start interacting with the private blockchain (see the [`kadenaclient` binary explanation](#kadena-server-and-client-binaries) for more details).
 
 For a list of supported interactions, refer to the ["Sample Usage: `[payments|monitor|todomvc]`"](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance) section in `Kadena-README.md`.
@@ -107,6 +124,7 @@ For a list of supported interactions, refer to the ["Sample Usage: `[payments|mo
 To exit the Kadena Client, type `exit`. To kill the tmux sessions, type `tmux kill-session`.
 
 The demo script assumes the following directory structure:
+
 ```
 $ tree <kadena-directory>
 <kadena-directory>
@@ -125,14 +143,15 @@ $ tree <kadena-directory>
         └── <all kadena executables>
 ```
 
-
 ## Instance Requirements
+
 The Ansible monitor instance and the Kadena server instances should be configured as follows:
-1. Install all Kadena software requirements. Refer to `<kadena-directory>/docs/Kadena-README.md` for specifics.
-2. Have Ansible 2.6+ installed.
-   See <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html> for instructions.
-3. Setup Ansible to use EC2's external inventory script.
-   See <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script> for instructions.
+
+1.  Install all Kadena software requirements. Refer to `<kadena-directory>/docs/Kadena-README.md` for specifics.
+2.  Have Ansible 2.6+ installed.
+    See <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html> for instructions.
+3.  Setup Ansible to use EC2's external inventory script.
+    See <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script> for instructions.
 
 An AWS image (AMI) created from this configured instance could be used to launch the Ansible monitor and Kadena server
 instances. For more information, see <https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/tkv-create-ami-from-instance.html>.
@@ -140,47 +159,50 @@ instances. For more information, see <https://docs.aws.amazon.com/toolkit-for-vi
 See `setup/setup-ubuntu-base.sh` for an example on how to configure EC2's free-tier ubuntu machine to run
 the Kadena executables and Ansible.
 
-
 ## Security Group Requirements
+
 Ansible needs to be able to communicate with the AWS instances it manages, and the Kadena Servers need to communicate
 with each other. Therefore, the security group (firewall) assigned to the Kadena server instances
 should allow for the following:
-1. The Ansible monitor instance (the one running the playbooks) should be able to ssh into
-   all of the Kadena Server instances it will manage.
-2. The Kadena Server instances should be able to communicate via TCP 10000 port.
-3. The Kadena Server instances should be able to receive HTTP connections via the 8000 port from
-   any instance running the Kadena Client.
+
+1.  The Ansible monitor instance (the one running the playbooks) should be able to ssh into
+    all of the Kadena Server instances it will manage.
+2.  The Kadena Server instances should be able to communicate via TCP 10000 port.
+3.  The Kadena Server instances should be able to receive HTTP connections via the 8000 port from
+    any instance running the Kadena Client.
 
 The simplest solution is to create a security group that allows all traffic among itself and assign this security
 group to the Ansible monitor and Kadena server instances.
 
 ## Further Reading
-1. While a little outdated, this post provides detailed instructions and goes further into the justifications for the
-   above suggestions: <https://aws.amazon.com/blogs/apn/getting-started-with-ansible-and-dynamic-amazon-ec2-inventory-management/>
-2. The official guide on how to use Ansible's AWS EC2 External Inventory Script:
-   <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script>
 
-
+1.  While a little outdated, this post provides detailed instructions and goes further into the justifications for the
+    above suggestions: <https://aws.amazon.com/blogs/apn/getting-started-with-ansible-and-dynamic-amazon-ec2-inventory-management/>
+2.  The official guide on how to use Ansible's AWS EC2 External Inventory Script:
+    <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script>
 
 ---
+
 # Kadena Blockchain Documentation
+
 ---
 
 Kadena Version: 1.1.x
 
 # Change Log
 
-* Version 1.1.3.0
-  * Added MySQL adapter to pact-persist
+- Version 1.1.3.0
 
-* Kadena 1.1.2 (June 12th, 2017)
-  * Integrated privacy mechanism (on-chain Noise protocol based private channels)
-  * Added `par-batch` to REPL
-  * Fixed issues with new command forwarding and batching mechanics
-  * `local` queries now execute immediately, skipping the write behind's queue
-  * Nodes are automatically configured to run on `0.0.0.0`
-  * `genconfs` inputs now are reflected in the configuration files
-  * Fixed `genconfs --distributed`
+  - Added MySQL adapter to pact-persist
+
+- Kadena 1.1.2 (June 12th, 2017)
+  - Integrated privacy mechanism (on-chain Noise protocol based private channels)
+  - Added `par-batch` to REPL
+  - Fixed issues with new command forwarding and batching mechanics
+  - `local` queries now execute immediately, skipping the write behind's queue
+  - Nodes are automatically configured to run on `0.0.0.0`
+  - `genconfs` inputs now are reflected in the configuration files
+  - Fixed `genconfs --distributed`
 
 # Getting Started
 
@@ -188,23 +210,23 @@ Kadena Version: 1.1.x
 
 Required:
 
-* `zeromq >= v4.1.4`
-  * OSX: `brew install zeromq`
-  * Ubuntu: the `apt-get` version of zeromq v4 is incorrect, you need to build it from source. See the Ubuntu docker file for more information.
-* `libz`: usually this comes pre-installed
-* `unixodbc == v3.*`
-  * OSX: `brew install unixodbc`
-  * Ubuntu: refer to docker file
-* `MySQL`
-* Ubuntu Only:
-  * `libsodium`: refer to docker file
+- `zeromq >= v4.1.4`
+  - OSX: `brew install zeromq`
+  - Ubuntu: the `apt-get` version of zeromq v4 is incorrect, you need to build it from source. See the Ubuntu docker file for more information.
+- `libz`: usually this comes pre-installed
+- `unixodbc == v3.*`
+  - OSX: `brew install unixodbc`
+  - Ubuntu: refer to docker file
+- `MySQL`
+- Ubuntu Only:
+  - `libsodium`: refer to docker file
 
 Optional:
 
-* `pact == v2.4`: See <https://github.com/kadena-io/pact#installing-pact-with-binary-distributions>.
-* `rlwrap`: only used in `kadenaclient.sh` to enable Up-Arrow style history. Feel free to remove it from the script if you'd like to avoid installing it.
-* `tmux == v2.0`: only used for the local demo script `<kadena-directory>/bin/<OS-name>/start.sh`.
-A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.
+- `pact == v2.4`: See <https://github.com/kadena-io/pact#installing-pact-with-binary-distributions>.
+- `rlwrap`: only used in `kadenaclient.sh` to enable Up-Arrow style history. Feel free to remove it from the script if you'd like to avoid installing it.
+- `tmux == v2.0`: only used for the local demo script `<kadena-directory>/bin/<OS-name>/start.sh`.
+  A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.
 
 NB: The docker and script files for installing the Kadena dependencies can be found in `<kadena-directory>/setup`.
 
@@ -225,7 +247,6 @@ Quickly launch a local instance, see "Sample Usage: `[payments|monitor|todomvc]`
 <kadena-directory>$ tmux
 <kadena-directory>$ ./bin/ubuntu-16.04/start.sh
 ```
-
 
 # Kadena server and client binaries
 
@@ -281,8 +302,8 @@ If you would like to do large scale `batch` tests in a local setting, use `genco
 If you'll be testing with many (100s to +10k) simultaneous clients please be sure to provision extra CPU's.
 In a production setting, we'd expect:
 
-* To use a separate server to collect inbound transactions from the multitude of clients and lump them into a single batch/pipe them over a websocket to the cluster itself so as to avoid needless CPU utilization.
-* For clients to connect to different nodes (e.g. all Firm A clients connect to Firm A's nodes, B's to B's, etc.), allowing the nodes themselves to batch/forward commands.
+- To use a separate server to collect inbound transactions from the multitude of clients and lump them into a single batch/pipe them over a websocket to the cluster itself so as to avoid needless CPU utilization.
+- For clients to connect to different nodes (e.g. all Firm A clients connect to Firm A's nodes, B's to B's, etc.), allowing the nodes themselves to batch/forward commands.
 
 The ability to do either of these is a feature of Kadena -- because commands must have a unique hash and are either (a) signed or (b) fully encrypted, they can be redirected without degrading the security model.
 
@@ -295,29 +316,30 @@ If you would like to start fresh, you will need to delete the SQLite DB's prior 
 
 By default `kadenaserver` is configured use as many cores as are available.
 In a distributed setting, this is generally a good default; in a local setting, it is not.
-Because each node needs 8 cores to function at peak performance, running multiple nodes locally when clusterSize * 8 > available cores can cause the nodes to obstruct each other (and thereby trigger an election).
+Because each node needs 8 cores to function at peak performance, running multiple nodes locally when clusterSize \* 8 > available cores can cause the nodes to obstruct each other (and thereby trigger an election).
 
 To avoid this, the demo's `start.sh` script restricts each node to 4 cores via the `+RTS -N4 -RTS` flags.
 You may use these, or any other flags found in [GHC RTS Options](https://downloads.haskell.org/~ghc/7.10.3/docs/html/users_guide/runtime-control.html#rts-opts-compile-time) to configure a given node should you wish to.
 
-* To set cores to a specific amount, add `+RTS -N[core count] -RTS`.
-* To allow kadena to use all available cores, do not specify core count (remove the `+RTS -N[count] -RTS` section, or just the `-N[cores]` if using other runtime settings.)
+- To set cores to a specific amount, add `+RTS -N[core count] -RTS`.
+- To allow kadena to use all available cores, do not specify core count (remove the `+RTS -N[count] -RTS` section, or just the `-N[cores]` if using other runtime settings.)
 
 ### Beta Limitations
 
 Beta License instances of Kadena are limited as follows:
 
-* The maximum cluster size is limited to 16
-* The maximum number of total committed transactions is limited to 200,000
-* The binaries will only run for 90 days
-* Consensus level membership & key rotation changes are not available
+- The maximum cluster size is limited to 16
+- The maximum number of total committed transactions is limited to 200,000
+- The binaries will only run for 90 days
+- Consensus level membership & key rotation changes are not available
 
 For a version without any/all of these restrictions, please contact us at [info@kadena.io](mailto:info@kadena.io).
 
 ### AWS Marketplace Limitations
+
 The AWS Marketplace listing of Kadena is limited as follows:
 
-* The maximum cluster size is limited to 4
+- The maximum cluster size is limited to 4
 
 For a version without any/all of these restrictions, please contact us at [info@kadena.io](mailto:info@kadena.io).
 
@@ -330,9 +352,9 @@ For a version without any/all of these restrictions, please contact us at [info@
 
 It operates in 2 modes:
 
-* `./genconfs` will create a set of config files for a localhost test of kadena.
-It will ask you how many cluster and client nodes you'd like.
-* `./genconfs --distributed <cluster-ips file>` will create a set of config files using the IP addresses specified in the files.
+- `./genconfs` will create a set of config files for a localhost test of kadena.
+  It will ask you how many cluster and client nodes you'd like.
+- `./genconfs --distributed <cluster-ips file>` will create a set of config files using the IP addresses specified in the files.
 
 In either mode `genconfs` will interactively prompt for settings with recommendations.
 
@@ -435,7 +457,6 @@ keyPairs:
     secret: 7ce4bae38fccfe33b6344b8c260bffa21df085cf033b3dc99b4781b550e1e922
 batchCmd: |-
   (demo.transfer "Acct1" "Acct2" 1.00)
-
 ```
 
 #### Sample Usage: running the payments demo (non-private) and testing batch performance
@@ -467,6 +488,7 @@ account      | amount       | balance      | data
 "Acct1"      | "1000000.0"  | "1000000.0"  | "Admin account funding"
 "Acct2"      | "0.0"        | "0.0"        | "Created account"
 ```
+
 Execute a single dollar transfer and check the balances again with `read-all`. `exec` sends
 a command to execute transactionally on the blockchain; `local` queries the local node (here "node0")
 to prevent a needless transaction for a query.
@@ -517,8 +539,8 @@ account      | amount       | balance      | data
 "Acct1"      | "-1.00"      | "995999.00"  | {"transfer-to":"Acct2"}
 "Acct2"      | "1.00"       | "4001.00"    | {"transfer-from":"Acct1"}
 ```
-If you would like to view the performance metrics from each node in the cluster, this can be done via `pollMetrics <requestKey>`
 
+If you would like to view the performance metrics from each node in the cluster, this can be done via `pollMetrics <requestKey>`
 
 ```
 node0> pollMetrics b768a85c6e1a06d4cfd9760dd981b675dcd9dc97ee8d7abc756246107f2ea03edd80e10e5168b41ee96a17b098ea3285a0f5ca9c61c4d974a7832e01f354dcf9
@@ -557,7 +579,6 @@ For example, on a 4 node cluster `par-batch 10000 1000 200` will submit 50 new c
 
 NB: In-REPL performance metrics for this test are inaccurate.
 Also, being the worst case architecture means that the cluster will make a best effort at performance but it will not be as high as `batch`.
-
 
 #### Sample Usage: Running the payments demo with private functionality
 
@@ -677,6 +698,7 @@ account | amount | balance   | data
 NB: The result of the first send shows you the result of the first part of the multi-phase tx, thus the "success"/"Write succeeded" status. Querying the database reveals the rollback which occurred two transactions later.
 
 #### Sample Usage: Inserting multiple records
+
 You can test inserting multiple records into a sample client database with the following commands:
 
 ```
@@ -691,21 +713,20 @@ The command:
 node0> loadMultiple 0 3000 demo/orders.txt
 ```
 
-will insert 3000 records into the orders table.  The file orders.txt serves as a template for the order records, and contains special strings of the form "${count}" that will be replaced with the numbers
-from 0 through 2999 as the records are inserted.  All 3000 records are sent in a single HTTP 'batch' command.
+will insert 3000 records into the orders table. The file orders.txt serves as a template for the order records, and contains special strings of the form "${count}" that will be replaced with the numbers
+from 0 through 2999 as the records are inserted. All 3000 records are sent in a single HTTP 'batch' command.
 
-You can run additional loadMultiple commands, but the initial 'count' (0 in the last example) must be chosen to not overlap with previously inserted rows.  So subsequent commands could be:
+You can run additional loadMultiple commands, but the initial 'count' (0 in the last example) must be chosen to not overlap with previously inserted rows. So subsequent commands could be:
+
 ```
 node0> loadMultiple 3000 3000
 
 node0> loadMultiple 6000 3000
 
 node0> loadMultiple 9000 3000
-
 ```
+
 etc.
-
-
 
 #### Sample Usage: Viewing the Performance Monitor
 
@@ -748,7 +769,6 @@ status)
     done
   exit 0
   ;;
-
 ```
 
 NB: The `port` that `genconfs` when running in `--distributed` mode is `10000` therefore `ekg` runs on port `10080` on each node.
@@ -811,9 +831,9 @@ publicKeys:
 Kadena uses SQLite for caching & persisting various by default.
 Upon request, Oracle, MS SQL Server, Postgres, and generic ODBC backends are also available.
 
-* `apiPort`: what port to host the REST API identical to the [Pact development server](http://pact-language.readthedocs.io/en/latest/pact-reference.html#rest-api)
-* `logDir`: what directory to use for writing the HTTP logs, the Kadena logs, and the various SQLite databases.
-* `enableDebug`: should the node write any logs
+- `apiPort`: what port to host the REST API identical to the [Pact development server](http://pact-language.readthedocs.io/en/latest/pact-reference.html#rest-api)
+- `logDir`: what directory to use for writing the HTTP logs, the Kadena logs, and the various SQLite databases.
+- `enableDebug`: should the node write any logs
 
 While this is pretty low level tuning, Kadena nodes can be configured to use different concurrency backends.
 We recommend the following defaults but please reach out to us if you have questions about tuning.
@@ -827,12 +847,12 @@ preProcThreadCount: 100
 
 These settings should be identical for each node.
 
-* `aeBatchSize:<int>`: This is the maximum number of transactions a leader will attempt to replicate at every heartbeat. It's recommended that this number average out to 10k/s.
-* `inMemTxCache:<int>`: How many committed transactions should be kept in memory before only being found on disk. It's recommended that this number be x10-x60 the `aeBatchSize`. This parameter impacts memory usage.
-* `heartbeatTimeout:<microseconds>`: How often should the Leader ping its Followers. This parameter should be at least 2x the average roundtrip latency time of the clusters network.
-* `electionTimeoutRange:[<min::microseconds>,<max::microseconds>]`: Classic Raft-Style election timeouts.
-  * `min` should be >= 5x of `heartbeatTimeout`
-  * `max` should be around `min + (heartbeatTimeout*clusterSize)`.
+- `aeBatchSize:<int>`: This is the maximum number of transactions a leader will attempt to replicate at every heartbeat. It's recommended that this number average out to 10k/s.
+- `inMemTxCache:<int>`: How many committed transactions should be kept in memory before only being found on disk. It's recommended that this number be x10-x60 the `aeBatchSize`. This parameter impacts memory usage.
+- `heartbeatTimeout:<microseconds>`: How often should the Leader ping its Followers. This parameter should be at least 2x the average roundtrip latency time of the clusters network.
+- `electionTimeoutRange:[<min::microseconds>,<max::microseconds>]`: Classic Raft-Style election timeouts.
+  - `min` should be >= 5x of `heartbeatTimeout`
+  - `max` should be around `min + (heartbeatTimeout*clusterSize)`.
 
 ### Entity Configuration and Confidentiality
 
@@ -846,7 +866,6 @@ For a given entity, the `signer` and `local` entries must match for all nodes in
 
 The `signer` private and public keys are ED25519 signing keys; the `secret` and `public` keys for local ephemeral and static keys, as well as for remote public keys, are Curve25519 Diffie-Hellman keys.
 
-
 ### Performance Considerations
 
 While `genConfs` will make a best guess at what the best configuration for your cluster is based on your inputs, it may be off. To that end, here are some notes if you find yourself seeing unexpected performance numbers.
@@ -857,7 +876,6 @@ Generally, it's best to have `maxTransactionsPerSecond` be 1.5x of the expected 
 
 Because of the way that we measure performance, which starts from the moment that the cluster's Leader node first sees a transaction to when it fully executes the Pact smart contract (inclusive of the time required for replication, consensus, and cryptography), the logic of the Pact smart contract itself will impact performance.
 Thus, executing simple logic like `(+ 1 1)` will achieve 12k commits/second whereas a smart contract with numerous database writes will vary based on the backend used and the complexity of the data model.
-
 
 ## Client (repl) config file
 

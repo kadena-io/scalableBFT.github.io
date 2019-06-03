@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
+
+    
     <meta charset="UTF-8">
 
 <!-- Begin Jekyll SEO tag v2.5.0 -->
-<title>Table of Contents | scalableBFT.github.io</title>
+<title>ScalableBFT on AWS | scalableBFT.github.io</title>
 <meta name="generator" content="Jekyll v3.8.5" />
-<meta property="og:title" content="Table of Contents" />
+<meta property="og:title" content="ScalableBFT on AWS" />
 <meta property="og:locale" content="en_US" />
 <link rel="canonical" href="http://localhost:4000/" />
 <meta property="og:url" content="http://localhost:4000/" />
 <meta property="og:site_name" content="scalableBFT.github.io" />
 <script type="application/ld+json">
-{"name":"scalableBFT.github.io","@type":"WebSite","url":"http://localhost:4000/","headline":"Table of Contents","@context":"http://schema.org"}</script>
+{"name":"scalableBFT.github.io","@type":"WebSite","url":"http://localhost:4000/","headline":"ScalableBFT on AWS","@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#157878">
-    <link rel="stylesheet" href="/assets/css/style.css?v=c3b0fa44a52f4aa25712910c3de55b0dd4b02527">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/assets/css/style.css?v=8fad2e1b02576bd2370a0ab30083da77ff049fb4">
   </head>
   <body>
-    <section class="page-header">
-      <h1 class="project-name">scalableBFT.github.io</h1>
-      <h2 class="project-tagline"></h2>
-      
-        <a href="https://github.com/kadena-io/scalableBFT.github.io" class="btn">View on GitHub</a>
-      
-      
-    </section>
 
-    <section class="main-content">
-      <h1 id="table-of-contents">Table of Contents</h1>
+    <header class="page-header" role="banner">
+      <h1 class="project-name">ScalableBFT on AWS</h1>
+    </header>
+
+    <main id="content" class="main-content" role="main">
+      <h2 id="table-of-contents">Table of Contents</h2>
+
 <ol>
   <li><a href="#ansible-and-aws">Ansible and AWS</a>
     <ul>
@@ -62,7 +62,9 @@
 <p>NB: The <a href="#ansible-and-aws">Ansible and AWS</a> section is equivalent to <code class="highlighter-rouge">Ansible-README.md</code>, while the <a href="#kadena-blockchain-documentation">Kadena Blockchain Documentation</a> section is equivalent to <code class="highlighter-rouge">Kadena-README.md</code>. Both documentations can be found in <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/</code>.</p>
 
 <hr />
+
 <h1 id="ansible-and-aws">Ansible and AWS</h1>
+
 <hr />
 
 <div align="center">
@@ -72,6 +74,7 @@
 <p>Watch the video above or follow the instructions below for AWS QuickStart instructions.</p>
 
 <h2 id="aws-quick-start">AWS Quick Start</h2>
+
 <ol>
   <li>Spin up an EC2 instance with Kadena’s ScalableBFT AMI or with the desired configurations
 (See <a href="#instance-requirements">Instance Requirements</a>). This will serve as the Ansible monitor instance.</li>
@@ -101,8 +104,10 @@ $ export AWS_SECRET_ACCESS_KEY='abc123'
 <p>You are now ready to start using the Ansible playbooks!</p>
 
 <h2 id="ansible-playbooks">Ansible Playbooks</h2>
+
 <p>Playbooks are composed of <code class="highlighter-rouge">plays</code>, which are then composed of <code class="highlighter-rouge">tasks</code>. Plays
 and tasks are executed sequentially. Ansible playbooks are in YAML format and can be executed as follows:</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ansible-playbook /path/to/playbook.yml
 </code></pre></div></div>
 
@@ -110,36 +115,44 @@ and tasks are executed sequentially. Ansible playbooks are in YAML format and ca
 
 <h3 id="start_instancesyml"><code class="highlighter-rouge">start_instances.yml</code></h3>
 
-<p>This playbook launches EC2 instances that have the necessary files and directories to run the Kadena Server executable. 
-It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each. 
+<p>This playbook launches EC2 instances that have the necessary files and directories to run the Kadena Server executable.
+It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each.
 This will create instances tagged as “kadena_server”. This list of IP addresses will be located in <code class="highlighter-rouge">aws/ipAddr.yml</code>.</p>
 
 <h3 id="stop_instancesyml"><code class="highlighter-rouge">stop_instances.yml</code></h3>
+
 <p>This playbook terminates all Kadena Server EC2 instances.</p>
 
 <h3 id="run_serversyml"><code class="highlighter-rouge">run_servers.yml</code></h3>
-<p>This playbooks runs the Kadena Server executable. If the servers were already running, it terminates them as well as cleans up their sqlite and log files before launching the server again. 
-This playbook also updates the server’s configuration if it has changed in the specified configuration directory (<code class="highlighter-rouge">conf/</code>) on the monitor instance. 
+
+<p>This playbooks runs the Kadena Server executable. If the servers were already running, it terminates them as well as cleans up their sqlite and log files before launching the server again.
+This playbook also updates the server’s configuration if it has changed in the specified configuration directory (<code class="highlighter-rouge">conf/</code>) on the monitor instance.
 The Kadena Servers will run for 24 hours after starting. To change this, edit the <strong>Start Kadena Servers</strong> async section in this playbook.</p>
 
 <h3 id="get_server_logsyml"><code class="highlighter-rouge">get_server_logs.yml</code></h3>
-<p>This playbook retrieves all of the Kadena Servers’ logs and sqlite files, deleting all previous retrieved logs. 
+
+<p>This playbook retrieves all of the Kadena Servers’ logs and sqlite files, deleting all previous retrieved logs.
 It stores the logs in <code class="highlighter-rouge">aws/logs/</code>.</p>
 
 <p>NB: To change distributed nodes’ configuration, run</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;kadena-directory&gt;$ ./bin/&lt;OS-name&gt;/genconfs --distributed aws/ipAddr.yml
 </code></pre></div></div>
+
 <p>Provide the desired settings when prompted. For more information, refer to the
 <a href="#configuration">“Automated configuration generation: <code class="highlighter-rouge">genconfs</code>”</a> section in <code class="highlighter-rouge">docs/Kadena-README.md</code>.</p>
 
 <h2 id="launching-the-demo">Launching the Demo</h2>
+
 <p>Once you’ve completed the <a href="#aws-quick-start">AWS Quick Start</a> instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd kadena-aws/
 $ ansible-playbook aws/start_instances.yml
 $ tmux
 $ ./aws/start_aws_demo.sh
 </code></pre></div></div>
-<p>Press Enter when prompted by <code class="highlighter-rouge">bin/ubuntu-16.04/kadenaclient.sh</code>. 
+
+<p>Press Enter when prompted by <code class="highlighter-rouge">bin/ubuntu-16.04/kadenaclient.sh</code>.
 This will start the Kadena Client and allow you to start interacting with the private blockchain (see the <a href="#kadena-server-and-client-binaries"><code class="highlighter-rouge">kadenaclient</code> binary explanation</a> for more details).</p>
 
 <p>For a list of supported interactions, refer to the <a href="#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">“Sample Usage: <code class="highlighter-rouge">[payments|monitor|todomvc]</code>”</a> section in <code class="highlighter-rouge">Kadena-README.md</code>.</p>
@@ -147,6 +160,7 @@ This will start the Kadena Client and allow you to start interacting with the pr
 <p>To exit the Kadena Client, type <code class="highlighter-rouge">exit</code>. To kill the tmux sessions, type <code class="highlighter-rouge">tmux kill-session</code>.</p>
 
 <p>The demo script assumes the following directory structure:</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ tree &lt;kadena-directory&gt;
 &lt;kadena-directory&gt;
 ├── aws
@@ -165,7 +179,9 @@ This will start the Kadena Client and allow you to start interacting with the pr
 </code></pre></div></div>
 
 <h2 id="instance-requirements">Instance Requirements</h2>
+
 <p>The Ansible monitor instance and the Kadena server instances should be configured as follows:</p>
+
 <ol>
   <li>Install all Kadena software requirements. Refer to <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/Kadena-README.md</code> for specifics.</li>
   <li>Have Ansible 2.6+ installed.
@@ -181,9 +197,11 @@ instances. For more information, see <a href="https://docs.aws.amazon.com/toolki
 the Kadena executables and Ansible.</p>
 
 <h2 id="security-group-requirements">Security Group Requirements</h2>
+
 <p>Ansible needs to be able to communicate with the AWS instances it manages, and the Kadena Servers need to communicate
 with each other. Therefore, the security group (firewall) assigned to the Kadena server instances
 should allow for the following:</p>
+
 <ol>
   <li>The Ansible monitor instance (the one running the playbooks) should be able to ssh into
 all of the Kadena Server instances it will manage.</li>
@@ -196,6 +214,7 @@ any instance running the Kadena Client.</li>
 group to the Ansible monitor and Kadena server instances.</p>
 
 <h2 id="further-reading">Further Reading</h2>
+
 <ol>
   <li>While a little outdated, this post provides detailed instructions and goes further into the justifications for the
 above suggestions: <a href="https://aws.amazon.com/blogs/apn/getting-started-with-ansible-and-dynamic-amazon-ec2-inventory-management/">https://aws.amazon.com/blogs/apn/getting-started-with-ansible-and-dynamic-amazon-ec2-inventory-management/</a></li>
@@ -204,7 +223,9 @@ above suggestions: <a href="https://aws.amazon.com/blogs/apn/getting-started-wit
 </ol>
 
 <hr />
+
 <h1 id="kadena-blockchain-documentation">Kadena Blockchain Documentation</h1>
+
 <hr />
 
 <p>Kadena Version: 1.1.x</p>
@@ -212,12 +233,15 @@ above suggestions: <a href="https://aws.amazon.com/blogs/apn/getting-started-wit
 <h1 id="change-log">Change Log</h1>
 
 <ul>
-  <li>Version 1.1.3.0
+  <li>
+    <p>Version 1.1.3.0</p>
+
     <ul>
       <li>Added MySQL adapter to pact-persist</li>
     </ul>
   </li>
-  <li>Kadena 1.1.2 (June 12th, 2017)
+  <li>
+    <p>Kadena 1.1.2 (June 12th, 2017)</p>
     <ul>
       <li>Integrated privacy mechanism (on-chain Noise protocol based private channels)</li>
       <li>Added <code class="highlighter-rouge">par-batch</code> to REPL</li>
@@ -377,6 +401,7 @@ You may use these, or any other flags found in <a href="https://downloads.haskel
 <p>For a version without any/all of these restrictions, please contact us at <a href="mailto:info@kadena.io">info@kadena.io</a>.</p>
 
 <h3 id="aws-marketplace-limitations">AWS Marketplace Limitations</h3>
+
 <p>The AWS Marketplace listing of Kadena is limited as follows:</p>
 
 <ul>
@@ -496,7 +521,6 @@ keyPairs:
     secret: 7ce4bae38fccfe33b6344b8c260bffa21df085cf033b3dc99b4781b550e1e922
 batchCmd: |-
   (demo.transfer "Acct1" "Acct2" 1.00)
-
 </code></pre></div></div>
 
 <h4 id="sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">Sample Usage: running the payments demo (non-private) and testing batch performance</h4>
@@ -526,6 +550,7 @@ account      | amount       | balance      | data
 "Acct1"      | "1000000.0"  | "1000000.0"  | "Admin account funding"
 "Acct2"      | "0.0"        | "0.0"        | "Created account"
 </code></pre></div></div>
+
 <p>Execute a single dollar transfer and check the balances again with <code class="highlighter-rouge">read-all</code>. <code class="highlighter-rouge">exec</code> sends
 a command to execute transactionally on the blockchain; <code class="highlighter-rouge">local</code> queries the local node (here “node0”)
 to prevent a needless transaction for a query.</p>
@@ -574,6 +599,7 @@ account      | amount       | balance      | data
 "Acct1"      | "-1.00"      | "995999.00"  | {"transfer-to":"Acct2"}
 "Acct2"      | "1.00"       | "4001.00"    | {"transfer-from":"Acct1"}
 </code></pre></div></div>
+
 <p>If you would like to view the performance metrics from each node in the cluster, this can be done via <code class="highlighter-rouge">pollMetrics &lt;requestKey&gt;</code></p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; pollMetrics b768a85c6e1a06d4cfd9760dd981b675dcd9dc97ee8d7abc756246107f2ea03edd80e10e5168b41ee96a17b098ea3285a0f5ca9c61c4d974a7832e01f354dcf9
@@ -724,6 +750,7 @@ account | amount | balance   | data
 <p>NB: The result of the first send shows you the result of the first part of the multi-phase tx, thus the “success”/”Write succeeded” status. Querying the database reveals the rollback which occurred two transactions later.</p>
 
 <h4 id="sample-usage-inserting-multiple-records">Sample Usage: Inserting multiple records</h4>
+
 <p>You can test inserting multiple records into a sample client database with the following commands:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; load demo/orders.yaml
@@ -736,17 +763,18 @@ This creates an 'orders' table into which records can be inserted.
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; loadMultiple 0 3000 demo/orders.txt
 </code></pre></div></div>
 
-<p>will insert 3000 records into the orders table.  The file orders.txt serves as a template for the order records, and contains special strings of the form “${count}” that will be replaced with the numbers
-from 0 through 2999 as the records are inserted.  All 3000 records are sent in a single HTTP ‘batch’ command.</p>
+<p>will insert 3000 records into the orders table. The file orders.txt serves as a template for the order records, and contains special strings of the form “${count}” that will be replaced with the numbers
+from 0 through 2999 as the records are inserted. All 3000 records are sent in a single HTTP ‘batch’ command.</p>
 
-<p>You can run additional loadMultiple commands, but the initial ‘count’ (0 in the last example) must be chosen to not overlap with previously inserted rows.  So subsequent commands could be:</p>
+<p>You can run additional loadMultiple commands, but the initial ‘count’ (0 in the last example) must be chosen to not overlap with previously inserted rows. So subsequent commands could be:</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; loadMultiple 3000 3000
 
 node0&gt; loadMultiple 6000 3000
 
 node0&gt; loadMultiple 9000 3000
-
 </code></pre></div></div>
+
 <p>etc.</p>
 
 <h4 id="sample-usage-viewing-the-performance-monitor">Sample Usage: Viewing the Performance Monitor</h4>
@@ -788,7 +816,6 @@ The following shell script extract uses this mechanism for status querying:</p>
     done
   exit 0
   ;;
-
 </code></pre></div></div>
 
 <p>NB: The <code class="highlighter-rouge">port</code> that <code class="highlighter-rouge">genconfs</code> when running in <code class="highlighter-rouge">--distributed</code> mode is <code class="highlighter-rouge">10000</code> therefore <code class="highlighter-rouge">ekg</code> runs on port <code class="highlighter-rouge">10080</code> on each node.</p>
@@ -919,12 +946,10 @@ Endpoints:
 
       <footer class="site-footer">
         
-          <span class="site-footer-owner"><a href="https://github.com/kadena-io/scalableBFT.github.io">scalableBFT.github.io</a> is maintained by <a href="https://github.com/kadena-io">kadena-io</a>.</span>
+          <span class="site-footer-owner">ScalableBFT is maintained by <a href="https://github.com/kadena-io">kadena-io</a>.</span>
         
         <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
       </footer>
-    </section>
-
-    
+    </main>
   </body>
 </html>

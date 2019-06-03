@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+
+<!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Table of Contents | scalableBFT.github.io</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Table of Contents" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="scalableBFT.github.io" />
+<script type="application/ld+json">
+{"name":"scalableBFT.github.io","@type":"WebSite","url":"http://localhost:4000/","headline":"Table of Contents","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link rel="stylesheet" href="/assets/css/style.css?v=c3b0fa44a52f4aa25712910c3de55b0dd4b02527">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">scalableBFT.github.io</h1>
+      <h2 class="project-tagline"></h2>
+      
+        <a href="https://github.com/kadena-io/scalableBFT.github.io" class="btn">View on GitHub</a>
+      
+      
+    </section>
+
+    <section class="main-content">
+      <h1 id="table-of-contents">Table of Contents</h1>
+<ol>
+  <li><a href="#ansible-and-aws">Ansible and AWS</a>
+    <ul>
+      <li><a href="#aws-quick-start">AWS Quick Start</a></li>
+      <li><a href="#ansible-playbooks">Ansible Playbooks</a></li>
+      <li><a href="#launching-the-demo">Launching the Demo</a></li>
+      <li><a href="#instance-requirements">Instance Requirements</a></li>
+      <li><a href="#security-group-requirements">Security Group Requirements</a></li>
+      <li><a href="#further-reading">Further Reading</a></li>
+    </ul>
+  </li>
+  <li><a href="#kadena-blockchain-documentation">Kadena Blockchain Documentation</a>
+    <ul>
+      <li><a href="#kadena-demo-quick-start">Kadena Demo Quick Start</a></li>
+      <li><a href="#kadena-server-and-client-binaries">Kadena server and client binaries</a></li>
+      <li><a href="#general-considerations">General Considerations</a></li>
+      <li><a href="#configuration">Configuration</a></li>
+      <li><a href="#interacting-with-a-running-cluster">Interacting With a Running Cluster</a>
+        <ul>
+          <li><a href="#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">Sample Usage: Payments demo</a></li>
+          <li><a href="#sample-usage-running-pact-todomvc">Sample Usage: Running Pact TodoMVC</a></li>
+        </ul>
+      </li>
+      <li><a href="#configuration-file-documentation">Configuration File Documentation</a></li>
+    </ul>
+  </li>
+</ol>
+
+<p>NB: The <a href="#ansible-and-aws">Ansible and AWS</a> section is equivalent to <code class="highlighter-rouge">Ansible-README.md</code>, while the <a href="#kadena-blockchain-documentation">Kadena Blockchain Documentation</a> section is equivalent to <code class="highlighter-rouge">Kadena-README.md</code>. Both documentations can be found in <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/</code>.</p>
+
+<hr />
+<h1 id="ansible-and-aws">Ansible and AWS</h1>
+<hr />
+
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=LHV00WLiXxA"><img src="https://img.youtube.com/vi/LHV00WLiXxA/0.jpg" alt="Kadena ScalableBFT AWS Marketplace QuickStart Video" target="_blank" /></a>
+</div>
+
+<p>Watch the video above or follow the instructions below for AWS QuickStart instructions.</p>
+
+<h2 id="aws-quick-start">AWS Quick Start</h2>
+<ol>
+  <li>Spin up an EC2 instance with Kadena’s ScalableBFT AMI or with the desired configurations
+(See <a href="#instance-requirements">Instance Requirements</a>). This will serve as the Ansible monitor instance.</li>
+  <li>Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
+viewable: <code class="highlighter-rouge">chmod 400 /path/to/keypair.pem</code>. Otherwise, SSH and any service that rely on it (i.e. Ansible)
+will not work.</li>
+  <li>Add the key pair(s) of the monitor and Kadena server instances to the <code class="highlighter-rouge">ssh-agent</code>:
+<code class="highlighter-rouge">ssh-add /path/to/keypair.pem</code></li>
+  <li>SSH into the monitor instance using ssh-agent forwarding: <code class="highlighter-rouge">ssh -A &lt;instance-user&gt;@&lt;instance-public-dns&gt;</code>. If using
+Kadena’s AWS listing, the <code class="highlighter-rouge">&lt;instance-user&gt;</code> is <code class="highlighter-rouge">ubuntu</code>.
+This facilitates the Ansible monitor’s task of managing different instances by having access to their key pair.</li>
+  <li>Once logged into the monitor instance, locate the directories containing the Kadena executables,
+the Kadena server node configurations, and the Ansible playbooks.</li>
+  <li>Edit the <code class="highlighter-rouge">ansible_vars.yml</code> to indicate the path to the Kadena executables and the node configurations.
+Also indicate the number of EC2 instances designated as Kadena servers to launch as well as how to configure
+them. See <a href="#instance-requirements">Instance Requirements</a> and <a href="#security-group-requirements">Security Group Requirements</a> for instance image
+and security group specifics.</li>
+  <li>Grant Ansible the ability to make API calls to AWS on your behalf. To do this, launch the monitor instance with
+Power User IAM role or export AWS security credentials as environment variables:
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ export AWS_ACCESS_KEY_ID='AK123'
+$ export AWS_SECRET_ACCESS_KEY='abc123'
+</code></pre></div>    </div>
+    <p>Make sure to persist these environment variables when logging in and out of the monitor instance.</p>
+  </li>
+</ol>
+
+<p>You are now ready to start using the Ansible playbooks!</p>
+
+<h2 id="ansible-playbooks">Ansible Playbooks</h2>
+<p>Playbooks are composed of <code class="highlighter-rouge">plays</code>, which are then composed of <code class="highlighter-rouge">tasks</code>. Plays
+and tasks are executed sequentially. Ansible playbooks are in YAML format and can be executed as follows:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ansible-playbook /path/to/playbook.yml
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">aws/</code> directory contains the following playbooks:</p>
+
+<h3 id="start_instancesyml"><code class="highlighter-rouge">start_instances.yml</code></h3>
+
+<p>This playbook launches EC2 instances that have the necessary files and directories to run the Kadena Server executable. 
+It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each. 
+This will create instances tagged as “kadena_server”. This list of IP addresses will be located in <code class="highlighter-rouge">aws/ipAddr.yml</code>.</p>
+
+<h3 id="stop_instancesyml"><code class="highlighter-rouge">stop_instances.yml</code></h3>
+<p>This playbook terminates all Kadena Server EC2 instances.</p>
+
+<h3 id="run_serversyml"><code class="highlighter-rouge">run_servers.yml</code></h3>
+<p>This playbooks runs the Kadena Server executable. If the servers were already running, it terminates them as well as cleans up their sqlite and log files before launching the server again. 
+This playbook also updates the server’s configuration if it has changed in the specified configuration directory (<code class="highlighter-rouge">conf/</code>) on the monitor instance. 
+The Kadena Servers will run for 24 hours after starting. To change this, edit the <strong>Start Kadena Servers</strong> async section in this playbook.</p>
+
+<h3 id="get_server_logsyml"><code class="highlighter-rouge">get_server_logs.yml</code></h3>
+<p>This playbook retrieves all of the Kadena Servers’ logs and sqlite files, deleting all previous retrieved logs. 
+It stores the logs in <code class="highlighter-rouge">aws/logs/</code>.</p>
+
+<p>NB: To change distributed nodes’ configuration, run</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;kadena-directory&gt;$ ./bin/&lt;OS-name&gt;/genconfs --distributed aws/ipAddr.yml
+</code></pre></div></div>
+<p>Provide the desired settings when prompted. For more information, refer to the
+<a href="#configuration">“Automated configuration generation: <code class="highlighter-rouge">genconfs</code>”</a> section in <code class="highlighter-rouge">docs/Kadena-README.md</code>.</p>
+
+<h2 id="launching-the-demo">Launching the Demo</h2>
+<p>Once you’ve completed the <a href="#aws-quick-start">AWS Quick Start</a> instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd kadena-aws/
+$ ansible-playbook aws/start_instances.yml
+$ tmux
+$ ./aws/start_aws_demo.sh
+</code></pre></div></div>
+<p>Press Enter when prompted by <code class="highlighter-rouge">bin/ubuntu-16.04/kadenaclient.sh</code>. 
+This will start the Kadena Client and allow you to start interacting with the private blockchain (see the <a href="#kadena-server-and-client-binaries"><code class="highlighter-rouge">kadenaclient</code> binary explanation</a> for more details).</p>
+
+<p>For a list of supported interactions, refer to the <a href="#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">“Sample Usage: <code class="highlighter-rouge">[payments|monitor|todomvc]</code>”</a> section in <code class="highlighter-rouge">Kadena-README.md</code>.</p>
+
+<p>To exit the Kadena Client, type <code class="highlighter-rouge">exit</code>. To kill the tmux sessions, type <code class="highlighter-rouge">tmux kill-session</code>.</p>
+
+<p>The demo script assumes the following directory structure:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ tree &lt;kadena-directory&gt;
+&lt;kadena-directory&gt;
+├── aws
+    ├── ansible_vars.yml
+    ├── get_server_logs.yml
+    ├── ipAddr.yml		(produced by start_instances.yml)
+    ├── run_servers.yml
+    ├── start_aws_demo.sh
+    ├── start_instances.yml
+    ├── stop_instances.yml
+    └── templates
+	└── ipAddr.j2
+└── bin
+    └── &lt;OS-name&gt;
+        └── &lt;all kadena executables&gt;
+</code></pre></div></div>
+
+<h2 id="instance-requirements">Instance Requirements</h2>
+<p>The Ansible monitor instance and the Kadena server instances should be configured as follows:</p>
+<ol>
+  <li>Install all Kadena software requirements. Refer to <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/Kadena-README.md</code> for specifics.</li>
+  <li>Have Ansible 2.6+ installed.
+See <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html">https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html</a> for instructions.</li>
+  <li>Setup Ansible to use EC2’s external inventory script.
+See <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script">https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script</a> for instructions.</li>
+</ol>
+
+<p>An AWS image (AMI) created from this configured instance could be used to launch the Ansible monitor and Kadena server
+instances. For more information, see <a href="https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/tkv-create-ami-from-instance.html">https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/tkv-create-ami-from-instance.html</a>.</p>
+
+<p>See <code class="highlighter-rouge">setup/setup-ubuntu-base.sh</code> for an example on how to configure EC2’s free-tier ubuntu machine to run
+the Kadena executables and Ansible.</p>
+
+<h2 id="security-group-requirements">Security Group Requirements</h2>
+<p>Ansible needs to be able to communicate with the AWS instances it manages, and the Kadena Servers need to communicate
+with each other. Therefore, the security group (firewall) assigned to the Kadena server instances
+should allow for the following:</p>
+<ol>
+  <li>The Ansible monitor instance (the one running the playbooks) should be able to ssh into
+all of the Kadena Server instances it will manage.</li>
+  <li>The Kadena Server instances should be able to communicate via TCP 10000 port.</li>
+  <li>The Kadena Server instances should be able to receive HTTP connections via the 8000 port from
+any instance running the Kadena Client.</li>
+</ol>
+
+<p>The simplest solution is to create a security group that allows all traffic among itself and assign this security
+group to the Ansible monitor and Kadena server instances.</p>
+
+<h2 id="further-reading">Further Reading</h2>
+<ol>
+  <li>While a little outdated, this post provides detailed instructions and goes further into the justifications for the
+above suggestions: <a href="https://aws.amazon.com/blogs/apn/getting-started-with-ansible-and-dynamic-amazon-ec2-inventory-management/">https://aws.amazon.com/blogs/apn/getting-started-with-ansible-and-dynamic-amazon-ec2-inventory-management/</a></li>
+  <li>The official guide on how to use Ansible’s AWS EC2 External Inventory Script:
+<a href="https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script">https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-aws-ec2-external-inventory-script</a></li>
+</ol>
+
+<hr />
+<h1 id="kadena-blockchain-documentation">Kadena Blockchain Documentation</h1>
+<hr />
+
+<p>Kadena Version: 1.1.x</p>
+
+<h1 id="change-log">Change Log</h1>
+
+<ul>
+  <li>Version 1.1.3.0
+    <ul>
+      <li>Added MySQL adapter to pact-persist</li>
+    </ul>
+  </li>
+  <li>Kadena 1.1.2 (June 12th, 2017)
+    <ul>
+      <li>Integrated privacy mechanism (on-chain Noise protocol based private channels)</li>
+      <li>Added <code class="highlighter-rouge">par-batch</code> to REPL</li>
+      <li>Fixed issues with new command forwarding and batching mechanics</li>
+      <li><code class="highlighter-rouge">local</code> queries now execute immediately, skipping the write behind’s queue</li>
+      <li>Nodes are automatically configured to run on <code class="highlighter-rouge">0.0.0.0</code></li>
+      <li><code class="highlighter-rouge">genconfs</code> inputs now are reflected in the configuration files</li>
+      <li>Fixed <code class="highlighter-rouge">genconfs --distributed</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="getting-started">Getting Started</h1>
+
+<h3 id="dependencies">Dependencies</h3>
+
+<p>Required:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">zeromq &gt;= v4.1.4</code>
+    <ul>
+      <li>OSX: <code class="highlighter-rouge">brew install zeromq</code></li>
+      <li>Ubuntu: the <code class="highlighter-rouge">apt-get</code> version of zeromq v4 is incorrect, you need to build it from source. See the Ubuntu docker file for more information.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">libz</code>: usually this comes pre-installed</li>
+  <li><code class="highlighter-rouge">unixodbc == v3.*</code>
+    <ul>
+      <li>OSX: <code class="highlighter-rouge">brew install unixodbc</code></li>
+      <li>Ubuntu: refer to docker file</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">MySQL</code></li>
+  <li>Ubuntu Only:
+    <ul>
+      <li><code class="highlighter-rouge">libsodium</code>: refer to docker file</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Optional:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">pact == v2.4</code>: See <a href="https://github.com/kadena-io/pact#installing-pact-with-binary-distributions">https://github.com/kadena-io/pact#installing-pact-with-binary-distributions</a>.</li>
+  <li><code class="highlighter-rouge">rlwrap</code>: only used in <code class="highlighter-rouge">kadenaclient.sh</code> to enable Up-Arrow style history. Feel free to remove it from the script if you’d like to avoid installing it.</li>
+  <li><code class="highlighter-rouge">tmux == v2.0</code>: only used for the local demo script <code class="highlighter-rouge">&lt;kadena-directory&gt;/bin/&lt;OS-name&gt;/start.sh</code>.
+A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.</li>
+</ul>
+
+<p>NB: The docker and script files for installing the Kadena dependencies can be found in <code class="highlighter-rouge">&lt;kadena-directory&gt;/setup</code>.</p>
+
+<h3 id="kadena-demo-quick-start">Kadena Demo Quick Start</h3>
+
+<p>Quickly launch a local instance, see “Sample Usage: <code class="highlighter-rouge">[payments|monitor|todomvc]</code>” for interactions supported.</p>
+
+<h4 id="osx">OSX</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;kadena-directory&gt;$ tmux
+&lt;kadena-directory&gt;$ ./bin/osx/start.sh
+</code></pre></div></div>
+
+<h4 id="ubuntu-1604">Ubuntu 16.04</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;kadena-directory&gt;$ tmux
+&lt;kadena-directory&gt;$ ./bin/ubuntu-16.04/start.sh
+</code></pre></div></div>
+
+<h1 id="kadena-server-and-client-binaries">Kadena server and client binaries</h1>
+
+<h3 id="kadenaserver"><code class="highlighter-rouge">kadenaserver</code></h3>
+
+<p>Launch a consensus server node.
+On startup, <code class="highlighter-rouge">kadenaserver</code> will open connections on three ports as specified in the configuration file:
+<code class="highlighter-rouge">&lt;apiPort&gt;</code>, <code class="highlighter-rouge">&lt;nodeId.port&gt;</code>, <code class="highlighter-rouge">&lt;nodeId.port&gt; + 5000</code>.
+Generally, these ports will default to <code class="highlighter-rouge">8000</code>, <code class="highlighter-rouge">10000</code>, and <code class="highlighter-rouge">15000</code> (see <code class="highlighter-rouge">genconfs</code> for details).</p>
+
+<p>For information regarding the configuration yaml generally, see the “Configuration Files” section.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kadenaserver (-c|--config) [-d|--disablePersistence]
+
+Options:
+  -c,--config               [Required] path to server yaml configuration file
+  -d,--disablePersistence   [Optional] disable usage of SQLite for on-disk persistence
+                                       (higher performance)
+</code></pre></div></div>
+
+<p>NB: there is a <code class="highlighter-rouge">zeromq</code> bug that may cause <code class="highlighter-rouge">kadenaserver</code> to fail to launch (segfault) ~1% of the time. Once running this is not an issue. If you encounter this problem, please relaunch.</p>
+
+<h3 id="kadenaclient--kadenaclientsh"><code class="highlighter-rouge">kadenaclient</code> &amp; <code class="highlighter-rouge">kadenaclient.sh</code></h3>
+
+<p>Launch a client to the consensus cluster.
+The client allows for command-line level interaction with the server’s REST API in a familiar (REPL-style) format.
+The associated script incorporates rlwrap to enable Up-Arrow style history, but is not required.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kadenaclient (-c|--config)
+
+Options:
+  -c,--config               [Required] path to client yaml configuration file
+
+Sample Usage (found in kadenaclient.sh):
+  rlwrap -A bin/kadenaclient -c "conf/$(ls conf | grep -m 1 client)"
+</code></pre></div></div>
+
+<h1 id="general-considerations">General Considerations</h1>
+
+<h3 id="elections-triggered-by-a-high-load">Elections Triggered by a High Load</h3>
+
+<p>When running a <code class="highlighter-rouge">local</code> demo, resource contention can trigger election under a high load when certain configurations are present.
+For example, <code class="highlighter-rouge">batch 40000</code> when the replication per heartbeat is set to +10k will likely trigger an election event.
+This is caused entirely by a lack of available CPU being present; one of the nodes will hog the CPU, causing the other nodes to trigger an election.
+This should not occur in a distributed setting nor is it a problem overall as the automated handling of availability events are one of the features central to any distributed system.</p>
+
+<p>If you would like to do large scale <code class="highlighter-rouge">batch</code> tests in a local setting, use <code class="highlighter-rouge">genconfs</code> to create new configuration files where the replication limit is ~8k.</p>
+
+<h3 id="load-testing-with-many-clients">Load Testing with Many Clients</h3>
+
+<p>If you’ll be testing with many (100s to +10k) simultaneous clients please be sure to provision extra CPU’s.
+In a production setting, we’d expect:</p>
+
+<ul>
+  <li>To use a separate server to collect inbound transactions from the multitude of clients and lump them into a single batch/pipe them over a websocket to the cluster itself so as to avoid needless CPU utilization.</li>
+  <li>For clients to connect to different nodes (e.g. all Firm A clients connect to Firm A’s nodes, B’s to B’s, etc.), allowing the nodes themselves to batch/forward commands.</li>
+</ul>
+
+<p>The ability to do either of these is a feature of Kadena – because commands must have a unique hash and are either (a) signed or (b) fully encrypted, they can be redirected without degrading the security model.</p>
+
+<h3 id="replay-from-disk">Replay From Disk</h3>
+
+<p>On startup but before <code class="highlighter-rouge">kadenaserver</code> goes online, it will replay from origin each persisted transaction.
+If you would like to start fresh, you will need to delete the SQLite DB’s prior to startup.</p>
+
+<h3 id="core-count">Core Count</h3>
+
+<p>By default <code class="highlighter-rouge">kadenaserver</code> is configured use as many cores as are available.
+In a distributed setting, this is generally a good default; in a local setting, it is not.
+Because each node needs 8 cores to function at peak performance, running multiple nodes locally when clusterSize * 8 &gt; available cores can cause the nodes to obstruct each other (and thereby trigger an election).</p>
+
+<p>To avoid this, the demo’s <code class="highlighter-rouge">start.sh</code> script restricts each node to 4 cores via the <code class="highlighter-rouge">+RTS -N4 -RTS</code> flags.
+You may use these, or any other flags found in <a href="https://downloads.haskell.org/~ghc/7.10.3/docs/html/users_guide/runtime-control.html#rts-opts-compile-time">GHC RTS Options</a> to configure a given node should you wish to.</p>
+
+<ul>
+  <li>To set cores to a specific amount, add <code class="highlighter-rouge">+RTS -N[core count] -RTS</code>.</li>
+  <li>To allow kadena to use all available cores, do not specify core count (remove the <code class="highlighter-rouge">+RTS -N[count] -RTS</code> section, or just the <code class="highlighter-rouge">-N[cores]</code> if using other runtime settings.)</li>
+</ul>
+
+<h3 id="beta-limitations">Beta Limitations</h3>
+
+<p>Beta License instances of Kadena are limited as follows:</p>
+
+<ul>
+  <li>The maximum cluster size is limited to 16</li>
+  <li>The maximum number of total committed transactions is limited to 200,000</li>
+  <li>The binaries will only run for 90 days</li>
+  <li>Consensus level membership &amp; key rotation changes are not available</li>
+</ul>
+
+<p>For a version without any/all of these restrictions, please contact us at <a href="mailto:info@kadena.io">info@kadena.io</a>.</p>
+
+<h3 id="aws-marketplace-limitations">AWS Marketplace Limitations</h3>
+<p>The AWS Marketplace listing of Kadena is limited as follows:</p>
+
+<ul>
+  <li>The maximum cluster size is limited to 4</li>
+</ul>
+
+<p>For a version without any/all of these restrictions, please contact us at <a href="mailto:info@kadena.io">info@kadena.io</a>.</p>
+
+<h1 id="configuration">Configuration</h1>
+
+<h3 id="automated-configuration-generation-genconfs">Automated configuration generation: <code class="highlighter-rouge">genconfs</code></h3>
+
+<p><code class="highlighter-rouge">kadenaserver</code> and <code class="highlighter-rouge">kadenaclient</code> each require a configuration file.
+<code class="highlighter-rouge">genconfs</code> is designed to assist you in quickly (re)generating these files.</p>
+
+<p>It operates in 2 modes:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">./genconfs</code> will create a set of config files for a localhost test of kadena.
+It will ask you how many cluster and client nodes you’d like.</li>
+  <li><code class="highlighter-rouge">./genconfs --distributed &lt;cluster-ips file&gt;</code> will create a set of config files using the IP addresses specified in the files.</li>
+</ul>
+
+<p>In either mode <code class="highlighter-rouge">genconfs</code> will interactively prompt for settings with recommendations.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ./genconfs
+When a recommended setting is available, press Enter to use it
+[FilePath] Which directory should hold the log files and SQLite DB's? (recommended: ./log)
+
+Set to recommended value: "./log"
+[FilePath] Where should `genconfs` write the configuration files? (recommended: ./conf)
+... etc ...
+</code></pre></div></div>
+
+<p>In distributed mode:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cat server-ips
+54.73.153.1
+54.73.153.2
+54.73.153.3
+54.73.153.4
+$ ./genconfs --distributed ./server-ips
+When a recommended setting is available, press Enter to use it
+[FilePath] Which directory should hold the log files and SQLite DB's? (recommended: ./log)
+... etc ...
+</code></pre></div></div>
+
+<p>For details about what each of these configuration choices do, please refer to the “Configuration Files” section.</p>
+
+<h1 id="interacting-with-a-running-cluster">Interacting With a Running Cluster</h1>
+
+<p>Interaction with the cluster is performed via the Kadena REST API, exposed by each running node.
+The endpoints of interest here support the <a href="http://pact-language.readthedocs.io/en/latest/pact-reference.html#rest-api">Pact REST API</a> for executing transactional and local commands on the cluster.</p>
+
+<h3 id="the-kadenaclient-tool">The <code class="highlighter-rouge">kadenaclient</code> tool</h3>
+
+<p>Kadena ships with <code class="highlighter-rouge">kadenaclient</code>, which is a command-line tool for interacting with the cluster via the REST API.
+It is an interactive program or “REPL”, similar to the command-line itself. It supports command history,
+such that recently-issued commands are accessible via the up- and down-arrow keys, and the history can be
+searched with Control-R.</p>
+
+<h4 id="getting-help">Getting help</h4>
+
+<p>The <code class="highlighter-rouge">help</code> command documents all available commands.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ./kadenaclient.sh
+node3&gt; help
+Command Help:
+sleep [MILLIS]
+    Pause for 5 sec or MILLIS
+cmd [COMMAND]
+    Show/set current batch command
+data [JSON]
+    Show/set current JSON data payload
+load YAMLFILE [MODE]
+    Load and submit yaml file with optional mode (transactional|local), defaults to transactional
+...
+</code></pre></div></div>
+
+<h4 id="server-command"><code class="highlighter-rouge">server</code> command</h4>
+
+<p>Issue <code class="highlighter-rouge">server</code> to list all nodes known to the client, and <code class="highlighter-rouge">server NODE</code> to point the client at
+the REST API for NODE.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; server
+Current server: node0
+Servers:
+node0: 127.0.0.1:8000 ["Alice", sending: True]
+node1: 127.0.0.1:8001 ["Bob", sending: True]
+node2: 127.0.0.1:8002 ["Carol", sending: True]
+node3: 127.0.0.1:8003 ["Dinesh", sending: True]
+node0&gt; server node1
+node1&gt;
+</code></pre></div></div>
+
+<h4 id="load-command"><code class="highlighter-rouge">load</code> command</h4>
+
+<p><code class="highlighter-rouge">load</code> is designed to assist with initializing a new environment on a running blockchain,
+accepting a yaml file to instruct how the code and data is loaded.</p>
+
+<p>The “demo” smart contract explores this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ tree demo
+demo
+├── demo.pact
+├── demo.repl
+└── demo.yaml
+
+$ cat demo/demo.yaml
+data: |-
+  demo-admin-keyset:
+    "keys": ["demoadmin"]
+    "pred": "&gt;"
+codeFile: demo.pact
+keyPairs:
+  - public: 06c9c56daa8a068e1f19f5578cdf1797b047252e1ef0eb4a1809aa3c2226f61e
+    secret: 7ce4bae38fccfe33b6344b8c260bffa21df085cf033b3dc99b4781b550e1e922
+batchCmd: |-
+  (demo.transfer "Acct1" "Acct2" 1.00)
+
+</code></pre></div></div>
+
+<h4 id="sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">Sample Usage: running the payments demo (non-private) and testing batch performance</h4>
+
+<p>Launch the client and (optionally) target the leader node (in this case <code class="highlighter-rouge">node0</code>).
+The only reason to target the leader is to forgo the forwarding of new transactions to the leader.
+The cluster will handle the forwarding automatically.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./kadenaclient.sh
+node3&gt; server node0
+</code></pre></div></div>
+
+<p>Initialize the chain with the <code class="highlighter-rouge">payments</code> smart contract, and create the global/non-private accounts.
+Note that the load process has an optional feature to set the batch command (see docs for <code class="highlighter-rouge">cmd</code> in help).
+The demo.yaml sets the batch command to
+transfer <code class="highlighter-rouge">1.00</code> between the demo accounts.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; load demo/demo.yaml
+status: success
+data: Write succeeded
+
+Setting batch command to: (demo.transfer "Acct1" "Acct2" 1.00)
+
+node0&gt; exec (demo.create-global-accounts)
+account      | amount       | balance      | data
+---------------------------------------------------------
+"Acct1"      | "1000000.0"  | "1000000.0"  | "Admin account funding"
+"Acct2"      | "0.0"        | "0.0"        | "Created account"
+</code></pre></div></div>
+<p>Execute a single dollar transfer and check the balances again with <code class="highlighter-rouge">read-all</code>. <code class="highlighter-rouge">exec</code> sends
+a command to execute transactionally on the blockchain; <code class="highlighter-rouge">local</code> queries the local node (here “node0”)
+to prevent a needless transaction for a query.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; exec (demo.transfer "Acct1" "Acct2" 1.00)
+status: success
+data: Write succeeded
+
+node0&gt; local (demo.read-all)
+account      | amount       | balance      | data
+---------------------------------------------------------
+"Acct1"      | "-1.00"      | "999999.00"  | {"transfer-to":"Acct2"}
+"Acct2"      | "1.00"       | "1.00"       | {"transfer-from":"Acct1"}
+</code></pre></div></div>
+
+<p>Verify that <code class="highlighter-rouge">cmd</code> is properly setup, and perform a <code class="highlighter-rouge">batch</code> test.
+<code class="highlighter-rouge">batch N</code> will create N identical transactions, using the command specified in <code class="highlighter-rouge">cmd</code> for each, and then send them to the cluster via the server specified by <code class="highlighter-rouge">server</code> (in this case to <code class="highlighter-rouge">node0</code>).</p>
+
+<p>Once sent, the client will then <code class="highlighter-rouge">listen</code> for the final transaction, collect and show its timing metrics, and print out the throughput seen in the test (i.e. <code class="highlighter-rouge">"Finished Commit" / N</code>).
+The “First Seen” time is the moment when the targeted server first saw the <strong>batch</strong> of transactions and the “Finished Commit” time delta fully captures the time it took for the replication, consensus, cryptography, and execution of the final transaction (meaning that all previous transactions needed to first be fully executed.)</p>
+
+<p>Some of the metrics may be of interest to you:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; cmd
+(demo.transfer "Acct1" "Acct2" 1.00)
+node0&gt; batch 4000
+Preparing 4000 messages ...
+Sent, retrieving responses
+Polling for RequestKey: "b768a85c6e1a06d4cfd9760dd981b675dcd9dc97ee8d7abc756246107f2ea03edd80e10e5168b41ee96a17b098ea3285a0f5ca9c61c4d974a7832e01f354dcf9"
+First Seen:          2017-03-19 05:43:14.571 UTC
+Hit Turbine:        +24.03 milli(s)
+Entered Con Serv:   +39.83 milli(s)
+Finished Con Serv:  +52.41 milli(s)
+Came to Consensus:  +113.00 milli(s)
+Sent to Commit:     +113.94 milli(s)
+Started PreProc:    +690.55 milli(s)
+Finished PreProc:   +690.66 milli(s)
+Crypto took:         115 micro(s)
+Started Commit:     +1.51 second(s)
+Finished Commit:    +1.51 second(s)
+Pact exec took:      179 micro(s)
+Completed in 1.517327sec (2637 per sec)
+node0&gt; exec (demo.read-all)
+account      | amount       | balance      | data
+---------------------------------------------------------
+"Acct1"      | "-1.00"      | "995999.00"  | {"transfer-to":"Acct2"}
+"Acct2"      | "1.00"       | "4001.00"    | {"transfer-from":"Acct1"}
+</code></pre></div></div>
+<p>If you would like to view the performance metrics from each node in the cluster, this can be done via <code class="highlighter-rouge">pollMetrics &lt;requestKey&gt;</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; pollMetrics b768a85c6e1a06d4cfd9760dd981b675dcd9dc97ee8d7abc756246107f2ea03edd80e10e5168b41ee96a17b098ea3285a0f5ca9c61c4d974a7832e01f354dcf9
+##############  node3  ##############
+First Seen:          2017-03-19 05:43:14.571 UTC
+Hit Turbine:        +24.03 milli(s)
+Entered Con Serv:   +39.83 milli(s)
+Finished Con Serv:  +52.41 milli(s)
+Came to Consensus:  +113.00 milli(s)
+Sent to Commit:     +113.94 milli(s)
+Started PreProc:    +690.55 milli(s)
+Finished PreProc:   +690.66 milli(s)
+Crypto took:         115 micro(s)
+Started Commit:     +1.51 second(s)
+Finished Commit:    +1.51 second(s)
+Pact exec took:      179 micro(s)
+##############  node2  ##############
+First Seen:          2017-03-19 05:43:14.868 UTC
+... etc ...
+</code></pre></div></div>
+
+<p>NB: the <code class="highlighter-rouge">Crypto took</code> metric is only accurate when the concurrency system is set to <code class="highlighter-rouge">Threads</code>.
+All other metrics are always accurate.</p>
+
+<h4 id="sample-usage-stressing-the-cluster">Sample Usage: Stressing the Cluster</h4>
+
+<p>The aforementioned performance test revolves around the idea that, in production, there will be a resource pool that batches new commands and forwards them directly to the Leader for the cluster.
+This is, by far, the best architectural setup from a performance and efficiency perspective.
+However, if you’d like to test the worst-case setup – one where new commands are distributed evenly across the cluster and the cluster is forced to forward and batch them as best it can – you can use <code class="highlighter-rouge">par-batch</code>.</p>
+
+<p><code class="highlighter-rouge">par-batch TOTAL_CMD_CNT CMD_RATE_PER_SEC DELAY</code> works much like <code class="highlighter-rouge">batch</code> except that <code class="highlighter-rouge">kadenaclient</code> will evenly distributed the new commands across the entire cluster.
+It is creates <code class="highlighter-rouge">TOTAL_CMD_CNT</code> commands first and then submits portions of the new command pool to each node in individual batches with a <code class="highlighter-rouge">DELAY</code> millisecond pause between each submission.
+Globally, it will achieve the <code class="highlighter-rouge">CMD_RATE_PER_SEC</code> specified.</p>
+
+<p>For example, on a 4 node cluster <code class="highlighter-rouge">par-batch 10000 1000 200</code> will submit 50 new commands to each node every 200ms for 10 seconds.</p>
+
+<p>NB: In-REPL performance metrics for this test are inaccurate.
+Also, being the worst case architecture means that the cluster will make a best effort at performance but it will not be as high as <code class="highlighter-rouge">batch</code>.</p>
+
+<h4 id="sample-usage-running-the-payments-demo-with-private-functionality">Sample Usage: Running the payments demo with private functionality</h4>
+
+<p>Refer to “Entity Configuration” below for general notes on privacy configurations. This demo requires that there be 4 entities configured by the <code class="highlighter-rouge">genconfs</code> tool, which will name them “Alice”, “Bob”, “Carol” and “Dinesh”. These would correspond to business entities on the blockchain, communicating with private messages over the blockchain. Confirm this setup with the <code class="highlighter-rouge">server</code> command.</p>
+
+<p>Launch the cluster, and load the demo.yaml file.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node3&gt; load demo/demo.yaml
+status: success
+data: TableCreated
+
+Setting batch command to: (demo.transfer "Acct1" "Acct2" 1.00)
+</code></pre></div></div>
+
+<p>Create the private accounts by sending a <em>private message</em> that executes a multi-step <em>pact</em> to create private accounts on each entity. Change to Alice’s server (node0) and send a private message to the other 3 participants with the demo code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node3&gt; server node0
+node0&gt; private Alice [Bob Carol Dinesh] (demo.create-private-accounts)
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">private</code> command creates an encrypted message, sent from Alice to Bob, Carol and Dinesh. The <code class="highlighter-rouge">create-private-accounts</code> pact executes a single command on the different servers. To see the results, perform <em>local queries</em> on each node.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; local (demo.read-all)
+account | amount   | balance  | data
+-------------------------------------------------
+"A"     | "1000.0" | "1000.0" | "Created account"
+node0&gt; server node1
+node1&gt; local (demo.read-all)
+account | amount   | balance  | data
+-------------------------------------------------
+"B"     | "1000.0" | "1000.0" | "Created account"
+node1&gt; server node2
+node2&gt; local (demo.read-all)
+account | amount   | balance  | data
+-------------------------------------------------
+"C"     | "1000.0" | "1000.0" | "Created account"
+node2&gt; server node3
+node3&gt; local (demo.read-all)
+account | amount   | balance  | data
+-------------------------------------------------
+"D"     | "1000.0" | "1000.0" | "Created account"
+</code></pre></div></div>
+
+<p>This illustrates how the different servers (which would be presumably behind firewalls, etc) contain different, private data.</p>
+
+<p>Now, execute a confidential transfer between Alice and Bob, transferring money from Alice’s account “A” to Bob’s account “B”.</p>
+
+<p>For this, the pact “payment” is used, which executes the debit step on the “source” entity, and the credit step on the “dest” entity. You can see the function docs by simply executing <code class="highlighter-rouge">payment</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node3&gt; local demo.payment
+status: success
+data: (TDef defpact demo.payment (src-entity:&lt;i&gt; src:&lt;j&gt; dest-entity:&lt;k&gt; dest:&lt;l&gt;
+  amount:&lt;m&gt; -&gt; &lt;n&gt;) "Two-phase confidential payment, sending money from SRC at SRC-ENTITY
+  to DEST at DEST-ENTITY.")
+</code></pre></div></div>
+
+<p>Set the server to node0 for Alice, and execute the pact to send 1.00 to Bob:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node3&gt; server node0
+node0&gt; private Alice [Bob] (demo.payment "Alice" "A" "Bob" "B" 1.00)
+status: success
+data:
+  amount: '1.00'
+  result: Write succeeded
+</code></pre></div></div>
+
+<p>To see the results, issue local queries on the nodes. Note that node2 and node 3 are unchanged:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; local (demo.read-all)
+account | amount  | balance  | data
+----------------------------------------------------------------------------
+"A"     | "-1.00" | "999.00" | {"tx":5,"transfer-to":"B","message":"Starting pact"}
+node0&gt; server node1
+node1&gt; local (demo.read-all)
+account | amount | balance   | data
+-------------------------------------------------------------------------------------
+"B"     | "1.00" | "1001.00" | {"tx":5,"debit-result":"Write succeeded","transfer-from":"A"}
+node1&gt; server node2
+node2&gt; local (demo.read-all)
+account | amount   | balance  | data
+-------------------------------------------------
+"C"     | "1000.0" | "1000.0" | "Created account"
+node2&gt; server node3
+node3&gt; local (demo.read-all)
+account | amount   | balance  | data
+-------------------------------------------------
+"D"     | "1000.0" | "1000.0" | "Created account"
+</code></pre></div></div>
+
+<p>You can also test out the rollback functionality on an error. Mistype the recipient account id (in this case we use “bad” instead of “B”). The pact will execute the debit on Alice/node0; attempt the credit on Bob/node1, failing because of the bad ID; finally the rollback will execute on Alice/node0. Bob’s account will be unchanged, while Alice’s account will note the rollback with the original tx id of the pact execution.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; private Alice [Bob] (demo.payment "Alice" "A" "Bob" "bad" 1.00)
+status: success
+data:
+  tx: 7
+  amount: '1.00'
+  result: Write succeeded
+
+node0&gt; local (demo.read-all)
+account | amount | balance  | data
+--------------------------------------------
+"A"     | "1.00" | "999.00" | {"rollback":7}
+node0&gt; server node1
+node1&gt; local (demo.read-all)
+account | amount | balance   | data
+--------------------------------------------------------------------------------------------
+"B"     | "1.00" | "1001.00" | {"tx":5,"debit-result":"Write succeeded","transfer-from":"A"}
+</code></pre></div></div>
+
+<p>NB: The result of the first send shows you the result of the first part of the multi-phase tx, thus the “success”/”Write succeeded” status. Querying the database reveals the rollback which occurred two transactions later.</p>
+
+<h4 id="sample-usage-inserting-multiple-records">Sample Usage: Inserting multiple records</h4>
+<p>You can test inserting multiple records into a sample client database with the following commands:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; load demo/orders.yaml
+
+This creates an 'orders' table into which records can be inserted.
+</code></pre></div></div>
+
+<p>The command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; loadMultiple 0 3000 demo/orders.txt
+</code></pre></div></div>
+
+<p>will insert 3000 records into the orders table.  The file orders.txt serves as a template for the order records, and contains special strings of the form “${count}” that will be replaced with the numbers
+from 0 through 2999 as the records are inserted.  All 3000 records are sent in a single HTTP ‘batch’ command.</p>
+
+<p>You can run additional loadMultiple commands, but the initial ‘count’ (0 in the last example) must be chosen to not overlap with previously inserted rows.  So subsequent commands could be:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node0&gt; loadMultiple 3000 3000
+
+node0&gt; loadMultiple 6000 3000
+
+node0&gt; loadMultiple 9000 3000
+
+</code></pre></div></div>
+<p>etc.</p>
+
+<h4 id="sample-usage-viewing-the-performance-monitor">Sample Usage: Viewing the Performance Monitor</h4>
+
+<p>Each kadena node, while running, will host a performance monitor at the URL <code class="highlighter-rouge">&lt;nodeId.host&gt;:&lt;nodeId.port&gt;/monitor</code>.</p>
+
+<h4 id="sample-usage-running-pact-todomvc">Sample Usage: Running Pact TodoMVC</h4>
+
+<p>This repo also bundles the <a href="https://github.com/kadena-io/pact-todomvc">Pact TodoMVC</a>. Each Kadena node will host the frontend at <code class="highlighter-rouge">&lt;nodeId.host&gt;:&lt;nodeId.port&gt;/todomvc</code>. To initialized the <code class="highlighter-rouge">todomvc</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd &lt;kadena-directory&gt;
+
+# launch the cluster
+
+$ ./bin/&lt;OS-name&gt;/kadenaclient.sh
+node3&gt; load todomvc/demo.yaml
+
+# go to host:port/todomvc
+</code></pre></div></div>
+
+<p>NB: this demo can be run at the same time as the <code class="highlighter-rouge">payments</code> demo.</p>
+
+<h4 id="sample-usage-running-a-cluster-on-aws">Sample Usage: Running a cluster on AWS</h4>
+
+<p>The Ansible playbooks and scripts we use for testing Kadena on AWS are now available as well, located in
+<code class="highlighter-rouge">&lt;kadena-directory&gt;/aws</code>. Refer to <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/Ansible-README.md</code> for detailed instructions on
+how to use these Ansible playbooks and scripts.</p>
+
+<h4 id="sample-usage-querying-the-cluster-for-server-metrics">Sample Usage: Querying the Cluster for Server Metrics</h4>
+
+<p>Each <code class="highlighter-rouge">kadenaserver</code> hosts an instance of <code class="highlighter-rouge">ekg</code> (a performance monitoring tool) on <code class="highlighter-rouge">&lt;node-host&gt;:&lt;node-port&gt;+80</code>.
+It returns a JSON blob of the latest tracked metrics.
+The following shell script extract uses this mechanism for status querying:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>status)
+  for i in `cat kadenaservers.privateIp`;
+    do echo $i ;
+      curl -sH "Accept: application/json" "$i:10080" | jq '.kadena | {role: .node.role.val, commit_index: .consensus.commit_index.val, applied_index: .node.applied_index.val}' ;
+    done
+  exit 0
+  ;;
+
+</code></pre></div></div>
+
+<p>NB: The <code class="highlighter-rouge">port</code> that <code class="highlighter-rouge">genconfs</code> when running in <code class="highlighter-rouge">--distributed</code> mode is <code class="highlighter-rouge">10000</code> therefore <code class="highlighter-rouge">ekg</code> runs on port <code class="highlighter-rouge">10080</code> on each node.</p>
+
+<h1 id="configuration-file-documentation">Configuration File Documentation</h1>
+
+<p>Generally, you won’t need to personally edit the configuration files for either the client or server(s), but this information is available should you wish to.
+The executable <code class="highlighter-rouge">genconfs</code> will create the configuration files for you and offer recommended settings based on your choices.</p>
+
+<h2 id="server-node-config-file">Server (node) config file</h2>
+
+<h3 id="node-specific-information">Node Specific Information</h3>
+
+<h4 id="identification">Identification</h4>
+
+<p>Each consensus node requires a unique Ed25519 keypair and <code class="highlighter-rouge">nodeId</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>myPublicKey: 53db73154fbb0c57129a0029439e5fc448e1199b6dcd5601bc08b48c5d9b0058
+myPrivateKey: 0c2b9f177cee13c698bec6afe2e635ca244ce402ccbd826a483f25f618beec8f
+nodeId:
+  alias: node0
+  fullAddr: tcp://127.0.0.1:10000
+  host: '127.0.0.1'
+  port: 10000
+</code></pre></div></div>
+
+<h4 id="other-nodes">Other Nodes</h4>
+
+<p>Each consensus node further requires a map of every other node, as well as their associated public key.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>otherNodes:
+- alias: node1
+  fullAddr: tcp://127.0.0.1:10001
+  host: '127.0.0.1'
+  port: 10001
+- alias: node2
+  fullAddr: tcp://127.0.0.1:10002
+  host: '127.0.0.1'
+  port: 10002
+- alias: node3
+  fullAddr: tcp://127.0.0.1:10003
+  host: '127.0.0.1'
+  port: 10003
+
+publicKeys:
+- - node0
+  - 53db73154fbb0c57129a0029439e5fc448e1199b6dcd5601bc08b48c5d9b0058
+- - node1
+  - 65d59bda770dd6de2b25308b2e039714fec752e42d11af3712159f27e9e295f4
+- - node2
+  - bd1700e6f206315debabfa5bf42228ed4f9e78cacbffabcca74ff4f67e5ac7a4
+- - node3
+  - 8d6f928659ea57be2ac19d64af05ca0ccb0f42303f0d668d1263c9a4c8b36925
+</code></pre></div></div>
+
+<h4 id="runtime-configuration">Runtime Configuration</h4>
+
+<p>Kadena uses SQLite for caching &amp; persisting various by default.
+Upon request, Oracle, MS SQL Server, Postgres, and generic ODBC backends are also available.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">apiPort</code>: what port to host the REST API identical to the <a href="http://pact-language.readthedocs.io/en/latest/pact-reference.html#rest-api">Pact development server</a></li>
+  <li><code class="highlighter-rouge">logDir</code>: what directory to use for writing the HTTP logs, the Kadena logs, and the various SQLite databases.</li>
+  <li><code class="highlighter-rouge">enableDebug</code>: should the node write any logs</li>
+</ul>
+
+<p>While this is pretty low level tuning, Kadena nodes can be configured to use different concurrency backends.
+We recommend the following defaults but please reach out to us if you have questions about tuning.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>preProcUsePar: true
+preProcThreadCount: 100
+</code></pre></div></div>
+
+<h3 id="consensus-configuration">Consensus Configuration</h3>
+
+<p>These settings should be identical for each node.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">aeBatchSize:&lt;int&gt;</code>: This is the maximum number of transactions a leader will attempt to replicate at every heartbeat. It’s recommended that this number average out to 10k/s.</li>
+  <li><code class="highlighter-rouge">inMemTxCache:&lt;int&gt;</code>: How many committed transactions should be kept in memory before only being found on disk. It’s recommended that this number be x10-x60 the <code class="highlighter-rouge">aeBatchSize</code>. This parameter impacts memory usage.</li>
+  <li><code class="highlighter-rouge">heartbeatTimeout:&lt;microseconds&gt;</code>: How often should the Leader ping its Followers. This parameter should be at least 2x the average roundtrip latency time of the clusters network.</li>
+  <li><code class="highlighter-rouge">electionTimeoutRange:[&lt;min::microseconds&gt;,&lt;max::microseconds&gt;]</code>: Classic Raft-Style election timeouts.
+    <ul>
+      <li><code class="highlighter-rouge">min</code> should be &gt;= 5x of <code class="highlighter-rouge">heartbeatTimeout</code></li>
+      <li><code class="highlighter-rouge">max</code> should be around <code class="highlighter-rouge">min + (heartbeatTimeout*clusterSize)</code>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="entity-configuration-and-confidentiality">Entity Configuration and Confidentiality</h3>
+
+<p>The Kadena platform uses the <a href="http://noiseprotocol.org/">Noise protocol</a> to provide the best possible on-chain encryption, as used by Signal, Whatsapp and Facebook. Messages are thoroughly encrypted with perfect forward secrecy, resulting in opaque blobs on-chain that leak no information about contents, senders or recipients.</p>
+
+<p>Configuring for confidential execution employs the notion of “entities”, which identify sub-clusters of nodes as belonging to a business entity with private data. Entities maintain keys for encrypting as well as signing.</p>
+
+<p>Within an entity sub-cluster, a single node is configured as a “sending node” which must be used to initiate private messages; this allows other sub-cluster nodes to avoid race conditions surrounding the key “ratcheting” used by the Noise protocol for forward secrecy; this way sub-cluster nodes will stay perfectly in sync and replicate properly.</p>
+
+<p>For a given entity, the <code class="highlighter-rouge">signer</code> and <code class="highlighter-rouge">local</code> entries must match for all nodes in the sub-cluster; only one may be designated as <code class="highlighter-rouge">sender</code> setting that to <code class="highlighter-rouge">true</code> for that node only. <code class="highlighter-rouge">remotes</code> list the static public key and the entity name for each remote entity in the cluster.</p>
+
+<p>The <code class="highlighter-rouge">signer</code> private and public keys are ED25519 signing keys; the <code class="highlighter-rouge">secret</code> and <code class="highlighter-rouge">public</code> keys for local ephemeral and static keys, as well as for remote public keys, are Curve25519 Diffie-Hellman keys.</p>
+
+<h3 id="performance-considerations">Performance Considerations</h3>
+
+<p>While <code class="highlighter-rouge">genConfs</code> will make a best guess at what the best configuration for your cluster is based on your inputs, it may be off. To that end, here are some notes if you find yourself seeing unexpected performance numbers.</p>
+
+<p>The relationship of <code class="highlighter-rouge">aeBatchSize</code> to <code class="highlighter-rouge">heartbeatTimeout</code> determines the upper bound on performance, specifically <code class="highlighter-rouge">aeBatchSize/heartbeatTimeoutInSeconds = maxTransactionsPerSecond</code>.
+This is because when the cluster has a large number of pending transactions to replicate, it will replicate up to <code class="highlighter-rouge">aeBatchSize</code> transactions every heartbeat until the cluster has caught up.
+Generally, it’s best to have <code class="highlighter-rouge">maxTransactionsPerSecond</code> be 1.5x of the expected performance, which itself is ~8k/second.</p>
+
+<p>Because of the way that we measure performance, which starts from the moment that the cluster’s Leader node first sees a transaction to when it fully executes the Pact smart contract (inclusive of the time required for replication, consensus, and cryptography), the logic of the Pact smart contract itself will impact performance.
+Thus, executing simple logic like <code class="highlighter-rouge">(+ 1 1)</code> will achieve 12k commits/second whereas a smart contract with numerous database writes will vary based on the backend used and the complexity of the data model.</p>
+
+<h2 id="client-repl-config-file">Client (repl) config file</h2>
+
+<p>Example of the client (repl) configuration file. <code class="highlighter-rouge">genconfs</code> will also auto-generate this for you.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PublicKey: 53db73154fbb0c57129a0029439e5fc448e1199b6dcd5601bc08b48c5d9b0058
+SecretKey: 0c2b9f177cee13c698bec6afe2e635ca244ce402ccbd826a483f25f618beec8f
+Endpoints:
+  node0: 127.0.0.1:8000
+  node1: 127.0.0.1:8001
+  node2: 127.0.0.1:8002
+  node3: 127.0.0.1:8003
+</code></pre></div></div>
+
+<p>(c) Kadena 2017</p>
+
+
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="https://github.com/kadena-io/scalableBFT.github.io">scalableBFT.github.io</a> is maintained by <a href="https://github.com/kadena-io">kadena-io</a>.</span>
+        
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+      </footer>
+    </section>
+
+    
+  </body>
+</html>

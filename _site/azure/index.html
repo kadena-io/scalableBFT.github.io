@@ -20,7 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="/assets/css/style.css?v=8fad2e1b02576bd2370a0ab30083da77ff049fb4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=a17b98638c3c961d909c507aecee1b0e0574c804">
   </head>
   <body>
 
@@ -38,7 +38,7 @@
       <li><a href="#ansible-playbooks">Ansible Playbooks</a></li>
       <li><a href="#launching-the-demo">Launching the Demo</a></li>
       <li><a href="#vm-requirements">Virtual Machine Requirements</a></li>
-      <li><a href="#security-group-requirements">Security Group Requirements</a></li>
+      <li><a href="#network-security-group-requirements">Network Security Group (NSG) Requirements</a></li>
       <li><a href="#further-reading">Further Reading</a></li>
     </ul>
   </li>
@@ -59,8 +59,6 @@
   </li>
 </ol>
 
-<p>NB: The <a href="#ansible-and-azure">Ansible and Azure</a> section is equivalent to <code class="highlighter-rouge">Ansible-README.md</code>, while the <a href="#kadena-blockchain-documentation">Kadena Blockchain Documentation</a> section is equivalent to <code class="highlighter-rouge">Kadena-README.md</code>. Both documentations can be found in <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/</code>.</p>
-
 <hr />
 
 <h1 id="ansible-and-azure">Ansible and Azure</h1>
@@ -70,24 +68,23 @@
 <h2 id="azure-quick-start">Azure Quick Start</h2>
 
 <ol>
-  <li>Create a resource Group on Azure Portal with a name <code class="highlighter-rouge">kadenaResourceGroup</code>. Create a Storage Account with the name <code class="highlighter-rouge">kadenaStorage</code>. Spin up a VM with Kadena’s ScalableBFT Image with the following requirements. (See <a href="#vm-requirements">VM Requirements</a>). This will serve as the Ansible monitor VM. <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json">https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json</a></li>
-  <li>Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
+  <li>Create a resource Group with a name <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
+  <li>Create a Storage Account with the name <code class="highlighter-rouge">kadenaStorage</code>.</li>
+  <li>Spin up a VM with Kadena’s ScalableBFT Image with the following requirements. (See <a href="#vm-requirements">VM Requirements</a>). This will serve as the Ansible monitor VM. <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json">https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json</a></li>
+  <li>Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
 viewable: <code class="highlighter-rouge">chmod 400 /path/to/keypair</code>. Otherwise, SSH and any service that rely on it (i.e. Ansible)
 will not work. See <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys">https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys</a> for setting up SSH keys.</li>
-  <li>Add the key pair(s) of the monitor and Kadena server instances to the <code class="highlighter-rouge">ssh-agent</code>:
+  <li>Add the key pair(s) of the monitor and Kadena node VMs to the <code class="highlighter-rouge">ssh-agent</code>:
 <code class="highlighter-rouge">ssh-add /path/to/keypair</code></li>
-  <li>SSH into the monitor instance using ssh-agent forwarding: <code class="highlighter-rouge">ssh -A &lt;admin-user&gt;@&lt;vm-public-ip&gt;</code>. If using
-Kadena’s Azure listing, the <code class="highlighter-rouge">&lt;admin-user&gt;</code> is <code class="highlighter-rouge">ubuntu</code>.
-This facilitates the Ansible monitor’s task of managing different instances by having access to their key pair.</li>
-  <li>Once logged into the monitor instance, locate the directories containing the Kadena executables,
-the Kadena server node configurations, and the Ansible playbooks.</li>
+  <li>SSH into the monitor instance using ssh-agent forwarding: <code class="highlighter-rouge">ssh -A &lt;admin-user&gt;@&lt;vm-public-ip&gt;</code>. The default <code class="highlighter-rouge">&lt;admin-user&gt;</code> is <code class="highlighter-rouge">ubuntu</code>.
+This facilitates the Ansible monitor’s task of managing different VMs by having access to their key pair.</li>
+  <li>Once logged into the monitor VM, locate the directory <code class="highlighter-rouge">kadena</code>.</li>
   <li>Grant Ansible the ability to make API calls to Azure on your behalf. You can simply log in with the following command:
     <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>az login
 </code></pre></div>    </div>
   </li>
-  <li>To use Active Directory, assign administrator role to the user to grant accessibility to the App Services.</li>
   <li>
-    <p>Create Azure Active Directory service principal and save credentials file, which grants the ability to use Azure’s Active Directory. There are several requirements for this. Grant access to App directory to the user. Run the following command.</p>
+    <p>Create Azure Active Directory service principal and save credentials file. This is to use Azure’s Dynamic Inventory with Ansible. See <a href="https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories">https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories</a>. User is required to have a directory role of Application Administrator or higher on Azure Active Directory to perform this. Run the following command.</p>
 
     <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>az ad sp create-for-rbac --query '{"client_id": appId, "secret": password, "tenant": tenant}'
 az account show --query '{ subscription_id: id }'
@@ -103,10 +100,21 @@ secret=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 tenant=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 </code></pre></div>    </div>
   </li>
-  <li>Edit the <code class="highlighter-rouge">user_vars.yml</code> to indicate the number of nodes, region and the size of the VMs. See <a href="#vm-requirements">VM Requirements</a> and <a href="#security-group-requirements">Security Group Requirements</a> for instance image and security group specifics.</li>
-</ol>
+  <li>
+    <p>Edit the <code class="highlighter-rouge">user_vars.yml</code> and fill in required parameters. There are 4 parameters: <code class="highlighter-rouge">node_image</code>, <code class="highlighter-rouge">node_count</code>, <code class="highlighter-rouge">node_region</code> and <code class="highlighter-rouge">node_size</code>. <code class="highlighter-rouge">node_image</code> is the image name of Kadena Scalable Permissioned Blockchain. <code class="highlighter-rouge">node_count</code> refers to the number of nodes you’d like to spin up. <code class="highlighter-rouge">node_region</code> is the region of the node VMs, and needs to be the same as the Ansible monitor VM. <code class="highlighter-rouge">node_size</code> can be decided based on the scale of project. For exploration, we recommend Standard B1s. See below as an example:</p>
 
-<p>You are now ready to start using the Ansible playbooks!</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```
+node_image: Kadena Community Edition, v1.1.4.0
+node_count: 4
+node_region: East US
+node_size: Standard_B1s
+
+```
+</code></pre></div>    </div>
+
+    <p>You are now ready to start using the Ansible playbooks!</p>
+  </li>
+</ol>
 
 <h2 id="ansible-playbooks">Ansible Playbooks</h2>
 
@@ -120,13 +128,11 @@ and tasks are executed sequentially. Ansible playbooks are in YAML format and ca
 
 <h3 id="start_instancesyml"><code class="highlighter-rouge">start_instances.yml</code></h3>
 
-<p>This playbook launches VM’s that have the necessary files and directories to run the Kadena Server executable.
-It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each.
-This will create VMs tagged as “kadena_server”. This list of IP addresses will be located in <code class="highlighter-rouge">ansible/ipAddr.yml</code>.</p>
+<p>This playbook launches VM’s that have the necessary files and directories to run the Kadena Server executable.</p>
 
 <h3 id="configure_instancesyml"><code class="highlighter-rouge">configure_instances.yml</code></h3>
 
-<p>WRITE ABOUT WHAT CONFIGURE DOES</p>
+<p>This playbook creates a file containing all of their public IP addresses and the default (i.e. SQLite backend) node configurations for each. This list of IP addresses will be located in <code class="highlighter-rouge">ansible/ipAddr.yml</code>.</p>
 
 <h3 id="stop_instancesyml"><code class="highlighter-rouge">stop_instances.yml</code></h3>
 
@@ -149,7 +155,7 @@ It stores the logs in <code class="highlighter-rouge">ansible/logs/</code>.</p>
 </code></pre></div></div>
 
 <p>Provide the desired settings when prompted. For more information, refer to the
-<a href="#configuration">“Automated configuration generation: <code class="highlighter-rouge">genconfs</code>”</a> section in <code class="highlighter-rouge">docs/Kadena-README.md</code>.</p>
+<a href="#configuration">“Automated configuration generation: <code class="highlighter-rouge">genconfs</code>”</a> section.</p>
 
 <h2 id="launching-the-demo">Launching the Demo</h2>
 
@@ -165,7 +171,7 @@ $ ./ansible/start_demo.sh
 <p>Press Enter when prompted by <code class="highlighter-rouge">bin/ubuntu-16.04/kadenaclient.sh</code>.
 This will start the Kadena Client and allow you to start interacting with the private blockchain (see the <a href="#kadena-server-and-client-binaries"><code class="highlighter-rouge">kadenaclient</code> binary explanation</a> for more details).</p>
 
-<p>For a list of supported interactions, refer to the <a href="#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">“Sample Usage: <code class="highlighter-rouge">[payments|monitor|todomvc]</code>”</a> section in <code class="highlighter-rouge">Kadena-README.md</code>.</p>
+<p>For a list of supported interactions, refer to the <a href="#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance">“Sample Usage: <code class="highlighter-rouge">[payments|monitor|todomvc]</code>”</a> section.</p>
 
 <p>To exit the Kadena Client, type <code class="highlighter-rouge">exit</code>. To kill the tmux sessions, type <code class="highlighter-rouge">tmux kill-session</code>.</p>
 
@@ -181,9 +187,7 @@ This will start the Kadena Client and allow you to start interacting with the pr
     ├── start_demo.sh
     ├── start_instances.yml
     ├── configure_instances.yml
-    ├── stop_instances.yml
-    └── templates
-	└── ipAddr.j2
+    └── stop_instances.yml
 └── bin
     └── &lt;OS-name&gt;
         └── &lt;all kadena executables&gt;
@@ -191,30 +195,26 @@ This will start the Kadena Client and allow you to start interacting with the pr
 
 <h2 id="vm-requirements">VM Requirements</h2>
 
-<p>The Ansible monitor instance and the Kadena server instances should be configured as follows:</p>
+<p>The Ansible monitor VM should be configured as follows:</p>
 
-<!--
-1.  Install all Kadena software requirements. Refer to `<kadena-directory>/docs/Kadena-README.md` for specifics.
-2.  Have Ansible 2.6+ installed.
-    See <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html> for instructions.
-3.  Setup Ansible to use Azure's external inventory script.
-    See <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-azure-ec2-external-inventory-script> for instructions. -->
+<ol>
+  <li>The monitor VM needs to be created in a resource group with a name <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
+  <li>The resource group, <code class="highlighter-rouge">kadenaResourceGroup</code> must have a storage account named <code class="highlighter-rouge">kadenastorage</code></li>
+  <li>The monitor VM is built on the image, <code class="highlighter-rouge">Kadena Community Edition, v1.1.4.0</code></li>
+  <li>The monitor VM uses admin name of <code class="highlighter-rouge">ubuntu</code> and SSH authentication with public key.</li>
+  <li>The size of monitor VM can be decided by user, but we recommend using a size greater than Standard B2s.</li>
+  <li>The monitor VM needs to allow Port 22 to manage Kadena Node VMs. See <a href="#network-security-group-requirements">Network Security Group (NSG) Requirements</a> for more.</li>
+</ol>
 
-<!-- An Azure image created from this configured instance could be used to launch the Ansible monitor and Kadena server
-instances. For more information, see <https://docs.azure.amazon.com/toolkit-for-visual-studio/latest/user-guide/tkv-create-ami-from-instance.html>. -->
+<h2 id="network-security-group-requirements">Network Security Group Requirements</h2>
 
-<p>See <code class="highlighter-rouge">setup/setup-ubuntu-base.sh</code> for an example on how to configure VM’s free-tier ubuntu machine to run
-the Kadena executables and Ansible.</p>
-
-<h2 id="security-group-nsg-requirements">Security Group (NSG) Requirements</h2>
-
-<p>Ansible needs to be able to communicate with the Azure instances it manages, and the Kadena Servers need to communicate
-with each other. Therefore, the security group (firewall) assigned to the Kadena server instances
+<p>Ansible needs to be able to communicate with the Azure VMs it manages, and the Kadena Servers need to communicate
+with each other. Therefore, the security group (firewall) assigned to the Kadena Node VMs
 should allow for the following:</p>
 
 <ol>
-  <li>The Ansible monitor instance (the one running the playbooks) should be able to ssh into
-all of the Kadena Server instances it will manage. Allow Port 22.</li>
+  <li>The Ansible monitor VM (the one running the playbooks) should be able to ssh into
+all of the Kadena Node VMs it will manage. Allow Port 22.</li>
   <li>The Kadena Node VMs should be able to communicate via TCP 10000 port.</li>
   <li>The Kadena Node VMs should be able to receive HTTP connections via the 8000 port from
 any instance running the Kadena Client.</li>
@@ -224,8 +224,8 @@ any instance running the Kadena Client.</li>
 
 <h2 id="further-reading">Further Reading</h2>
 
-<!-- The official guide on how to use Ansible's Azure modules:
-    <https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html?highlight=dynamic%20inventory%20azure> -->
+<p>The official guide on how to use Ansible’s Azure modules:
+<a href="https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html?highlight=dynamic%20inventory%20azure">https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html?highlight=dynamic%20inventory%20azure</a></p>
 
 <hr />
 
@@ -805,7 +805,7 @@ node3&gt; load todomvc/demo.yaml
 <h4 id="sample-usage-running-a-cluster-on-azure">Sample Usage: Running a cluster on Azure</h4>
 
 <p>The Ansible playbooks and scripts we use for testing Kadena on Azure are now available as well, located in
-<code class="highlighter-rouge">&lt;kadena-directory&gt;/azure</code>. Refer to <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/Ansible-README.md</code> for detailed instructions on
+<code class="highlighter-rouge">&lt;kadena-directory&gt;/ansible</code>. Refer to <a href="#ansible-playbooks">Ansible Plabooks</a> section for detailed instructions on
 how to use these Ansible playbooks and scripts.</p>
 
 <h4 id="sample-usage-querying-the-cluster-for-server-metrics">Sample Usage: Querying the Cluster for Server Metrics</h4>

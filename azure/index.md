@@ -10,7 +10,7 @@ layout: default
     - [Ansible Playbooks](#ansible-playbooks)
     - [Launching the Demo](#launching-the-demo)
     - [Virtual Machine Requirements](#vm-requirements)
-    - [Security Group Requirements](#security-group-requirements)
+    - [Network Security Group (NSG) Requirements](#network-security-group-requirements)
     - [Further Reading](#further-reading)
 2.  [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
     - [Kadena Demo Quick Start](#kadena-demo-quick-start)
@@ -22,8 +22,6 @@ layout: default
       - [Sample Usage: Running Pact TodoMVC](#sample-usage-running-pact-todomvc)
     - [Configuration File Documentation](#configuration-file-documentation)
 
-NB: The [Ansible and Azure](#ansible-and-azure) section is equivalent to `Ansible-README.md`, while the [Kadena Blockchain Documentation](#kadena-blockchain-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
-
 ---
 
 # Ansible and Azure
@@ -32,30 +30,29 @@ NB: The [Ansible and Azure](#ansible-and-azure) section is equivalent to `Ansibl
 
 ## Azure Quick Start
 
-1.  Create a resource Group on Azure Portal with a name `kadenaResourceGroup`. Create a Storage Account with the name `kadenaStorage`. Spin up a VM with Kadena's ScalableBFT Image with the following requirements. (See [VM Requirements](#vm-requirements)). This will serve as the Ansible monitor VM. <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json>
-2.  Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
+1.  Create a resource Group with a name `kadenaResourceGroup`.
+2.  Create a Storage Account with the name `kadenaStorage`.
+3.  Spin up a VM with Kadena's ScalableBFT Image with the following requirements. (See [VM Requirements](#vm-requirements)). This will serve as the Ansible monitor VM. <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json>
+4.  Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
     viewable: `chmod 400 /path/to/keypair`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
     will not work. See <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys> for setting up SSH keys.
-3.  Add the key pair(s) of the monitor and Kadena server instances to the `ssh-agent`:
+5.  Add the key pair(s) of the monitor and Kadena node VMs to the `ssh-agent`:
     `ssh-add /path/to/keypair`
-4.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <admin-user>@<vm-public-ip>`. If using
-    Kadena's Azure listing, the `<admin-user>` is `ubuntu`.
-    This facilitates the Ansible monitor's task of managing different instances by having access to their key pair.
-5.  Once logged into the monitor instance, locate the directories containing the Kadena executables,
-    the Kadena server node configurations, and the Ansible playbooks.
-6.  Grant Ansible the ability to make API calls to Azure on your behalf. You can simply log in with the following command:
+6.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <admin-user>@<vm-public-ip>`. The default `<admin-user>` is `ubuntu`.
+    This facilitates the Ansible monitor's task of managing different VMs by having access to their key pair.
+7.  Once logged into the monitor VM, locate the directory `kadena`.
+8.  Grant Ansible the ability to make API calls to Azure on your behalf. You can simply log in with the following command:
     ```
     az login
     ```
-7.  To use Active Directory, assign administrator role to the user to grant accessibility to the App Services.
-8.  Create Azure Active Directory service principal and save credentials file, which grants the ability to use Azure's Active Directory. There are several requirements for this. Grant access to App directory to the user. Run the following command.
+9.  Create Azure Active Directory service principal and save credentials file. This is to use Azure's Dynamic Inventory with Ansible. See <https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories>. User is required to have a directory role of Application Administrator or higher on Azure Active Directory to perform this. Run the following command.
 
     ```
     az ad sp create-for-rbac --query '{"client_id": appId, "secret": password, "tenant": tenant}'
     az account show --query '{ subscription_id: id }'
     ```
 
-9.  Create credentials file in ~/.azure/credentials path with the following format:
+10. Create credentials file in ~/.azure/credentials path with the following format:
 
     ```
     [default]
@@ -65,9 +62,17 @@ NB: The [Ansible and Azure](#ansible-and-azure) section is equivalent to `Ansibl
     tenant=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     ```
 
-10. Edit the `user_vars.yml` to indicate the number of nodes, region and the size of the VMs. See [VM Requirements](#vm-requirements) and [Security Group Requirements](#security-group-requirements) for instance image and security group specifics.
+11. Edit the `user_vars.yml` and fill in required parameters. There are 4 parameters: `node_image`, `node_count`, `node_region` and `node_size`. `node_image` is the image name of Kadena Scalable Permissioned Blockchain. `node_count` refers to the number of nodes you'd like to spin up. `node_region` is the region of the node VMs, and needs to be the same as the Ansible monitor VM. `node_size` can be decided based on the scale of project. For exploration, we recommend Standard B1s. See below as an example:
 
-You are now ready to start using the Ansible playbooks!
+        ```
+        node_image: Kadena Community Edition, v1.1.4.0
+        node_count: 4
+        node_region: East US
+        node_size: Standard_B1s
+
+        ```
+
+    You are now ready to start using the Ansible playbooks!
 
 ## Ansible Playbooks
 
@@ -83,12 +88,10 @@ The `ansible/` directory contains the following playbooks:
 ### `start_instances.yml`
 
 This playbook launches VM's that have the necessary files and directories to run the Kadena Server executable.
-It also creates a file containing all of their private IP addresses and the default (i.e. SQLite backend) node configurations for each.
-This will create VMs tagged as "kadena_server". This list of IP addresses will be located in `ansible/ipAddr.yml`.
 
 ### `configure_instances.yml`
 
-WRITE ABOUT WHAT CONFIGURE DOES
+This playbook creates a file containing all of their public IP addresses and the default (i.e. SQLite backend) node configurations for each. This list of IP addresses will be located in `ansible/ipAddr.yml`.
 
 ### `stop_instances.yml`
 
@@ -112,7 +115,7 @@ NB: To change distributed nodes' configuration, run
 ```
 
 Provide the desired settings when prompted. For more information, refer to the
-["Automated configuration generation: `genconfs`"](#configuration) section in `docs/Kadena-README.md`.
+["Automated configuration generation: `genconfs`"](#configuration) section.
 
 ## Launching the Demo
 
@@ -129,7 +132,7 @@ $ ./ansible/start_demo.sh
 Press Enter when prompted by `bin/ubuntu-16.04/kadenaclient.sh`.
 This will start the Kadena Client and allow you to start interacting with the private blockchain (see the [`kadenaclient` binary explanation](#kadena-server-and-client-binaries) for more details).
 
-For a list of supported interactions, refer to the ["Sample Usage: `[payments|monitor|todomvc]`"](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance) section in `Kadena-README.md`.
+For a list of supported interactions, refer to the ["Sample Usage: `[payments|monitor|todomvc]`"](#sample-usage-running-the-payments-demo-non-private-and-testing-batch-performance) section.
 
 To exit the Kadena Client, type `exit`. To kill the tmux sessions, type `tmux kill-session`.
 
@@ -146,9 +149,7 @@ $ tree <kadena-directory>
     ├── start_demo.sh
     ├── start_instances.yml
     ├── configure_instances.yml
-    ├── stop_instances.yml
-    └── templates
-	└── ipAddr.j2
+    └── stop_instances.yml
 └── bin
     └── <OS-name>
         └── <all kadena executables>
@@ -156,29 +157,23 @@ $ tree <kadena-directory>
 
 ## VM Requirements
 
-The Ansible monitor instance and the Kadena server instances should be configured as follows:
+The Ansible monitor VM should be configured as follows:
 
-<!--
-1.  Install all Kadena software requirements. Refer to `<kadena-directory>/docs/Kadena-README.md` for specifics.
-2.  Have Ansible 2.6+ installed.
-    See <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html> for instructions.
-3.  Setup Ansible to use Azure's external inventory script.
-    See <https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html#example-azure-ec2-external-inventory-script> for instructions. -->
+1.  The monitor VM needs to be created in a resource group with a name `kadenaResourceGroup`.
+2.  The resource group, `kadenaResourceGroup` must have a storage account named `kadenastorage`
+3.  The monitor VM is built on the image, `Kadena Community Edition, v1.1.4.0`
+4.  The monitor VM uses admin name of `ubuntu` and SSH authentication with public key.
+5.  The size of monitor VM can be decided by user, but we recommend using a size greater than Standard B2s.
+6.  The monitor VM needs to allow Port 22 to manage Kadena Node VMs. See [Network Security Group (NSG) Requirements](#network-security-group-requirements) for more.
 
-<!-- An Azure image created from this configured instance could be used to launch the Ansible monitor and Kadena server
-instances. For more information, see <https://docs.azure.amazon.com/toolkit-for-visual-studio/latest/user-guide/tkv-create-ami-from-instance.html>. -->
+## Network Security Group Requirements
 
-See `setup/setup-ubuntu-base.sh` for an example on how to configure VM's free-tier ubuntu machine to run
-the Kadena executables and Ansible.
-
-## Security Group (NSG) Requirements
-
-Ansible needs to be able to communicate with the Azure instances it manages, and the Kadena Servers need to communicate
-with each other. Therefore, the security group (firewall) assigned to the Kadena server instances
+Ansible needs to be able to communicate with the Azure VMs it manages, and the Kadena Servers need to communicate
+with each other. Therefore, the security group (firewall) assigned to the Kadena Node VMs
 should allow for the following:
 
-1.  The Ansible monitor instance (the one running the playbooks) should be able to ssh into
-    all of the Kadena Server instances it will manage. Allow Port 22.
+1.  The Ansible monitor VM (the one running the playbooks) should be able to ssh into
+    all of the Kadena Node VMs it will manage. Allow Port 22.
 2.  The Kadena Node VMs should be able to communicate via TCP 10000 port.
 3.  The Kadena Node VMs should be able to receive HTTP connections via the 8000 port from
     any instance running the Kadena Client.
@@ -187,8 +182,8 @@ The Ansible Playbooks will create a Security Group with the requirements for the
 
 ## Further Reading
 
-<!-- The official guide on how to use Ansible's Azure modules:
-    <https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html?highlight=dynamic%20inventory%20azure> -->
+The official guide on how to use Ansible's Azure modules:
+<https://docs.ansible.com/ansible/latest/scenario_guides/guide_azure.html?highlight=dynamic%20inventory%20azure>
 
 ---
 
@@ -761,7 +756,7 @@ NB: this demo can be run at the same time as the `payments` demo.
 #### Sample Usage: Running a cluster on Azure
 
 The Ansible playbooks and scripts we use for testing Kadena on Azure are now available as well, located in
-`<kadena-directory>/azure`. Refer to `<kadena-directory>/docs/Ansible-README.md` for detailed instructions on
+`<kadena-directory>/ansible`. Refer to [Ansible Plabooks](#ansible-playbooks) section for detailed instructions on
 how to use these Ansible playbooks and scripts.
 
 #### Sample Usage: Querying the Cluster for Server Metrics

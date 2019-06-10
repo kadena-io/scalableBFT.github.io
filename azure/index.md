@@ -72,17 +72,16 @@ layout: default
 
 See the example below:
 
-        ```
-        node_image:
-          offer: scalablebft
-          publisher: kadenallc
-          sku: kadena-community-edition
-          version: latest
-        node_count: 4
-        node_region: East US
-        node_size: Standard_B1s
-
-        ```
+```yaml
+node_image:
+  offer: scalablebft
+  publisher: kadenallc
+  sku: kadena-community-edition
+  version: latest
+node_count: 4
+node_region: East US
+node_size: Standard_B1s
+```
 
   You are now ready to start using the Ansible playbooks! For more guidance, refer
   to [Launching the Demo](#launching-the-demo).

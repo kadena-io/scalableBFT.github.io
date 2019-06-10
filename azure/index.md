@@ -32,10 +32,10 @@ layout: default
 
 1.  Create a resource Group with a name `kadenaResourceGroup`.
 2.  Create a Storage Account with the name `kadenaStorage`.
-3.  Spin up a VM with Kadena's ScalableBFT Image with the following requirements. (See [VM Requirements](#vm-requirements)). This will serve as the Ansible monitor VM. <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json>
+3.  Spin up a VM with Kadena's ScalableBFT Image with the requirements specified in [VM Requirements](#vm-requirements). This will serve as the Ansible monitor VM.
 4.  Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
     viewable: `chmod 400 /path/to/keypair`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
-    will not work. See <https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys> for setting up SSH keys.
+    will not work. See [here](<https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys>) for how to set up SSH keys.
 5.  Add the key pair(s) of the monitor and Kadena node VMs to the `ssh-agent`:
     `ssh-add /path/to/keypair`
 6.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <admin-user>@<vm-public-ip>`. The default `<admin-user>` is `ubuntu`.
@@ -45,14 +45,14 @@ layout: default
     ```
     az login
     ```
-9.  Create Azure Active Directory service principal and save credentials file. This is to use Azure's Dynamic Inventory with Ansible. See <https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories>. User is required to have a directory role of Application Administrator or higher on Azure Active Directory to perform this. Run the following command.
+9.  Create a Service Principle in your Azure Active Directory. This is to use [Azure's Dynamic Inventory](<https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories>) with Ansible. The User is required to have a directory role of 'Application Administrator' or higher on Azure Active Directory to perform this. To retrieve the credentials associated with the Service Principle, run the following command and save its result:
 
     ```
     az ad sp create-for-rbac --query '{"client_id": appId, "secret": password, "tenant": tenant}'
     az account show --query '{ subscription_id: id }'
     ```
 
-10. Create credentials file in ~/.azure/credentials path with the following format:
+10. Using the result of task #9, create a credentials file in `~/.azure/credentials` path with the following format:
 
     ```
     [default]
@@ -62,17 +62,29 @@ layout: default
     tenant=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     ```
 
-11. Edit the `user_vars.yml` and fill in required parameters. There are 4 parameters: `node_image`, `node_count`, `node_region` and `node_size`. `node_image` is the image name of Kadena Scalable Permissioned Blockchain. `node_count` refers to the number of nodes you'd like to spin up. `node_region` is the region of the node VMs, and needs to be the same as the Ansible monitor VM. `node_size` can be decided based on the scale of project. For exploration, we recommend Standard B1s. See below as an example:
+11. Edit the `ansible/user_vars.yml` and fill in required parameters. There are 5 parameters:
+    - `node_image`:
+       - `sku`: the Kadena ScalableBFT image SKU Id.
+       - `version`: the Kadena ScalableBFT image SKU version.
+    - `node_count`: the number of nodes you'd like to spin up.
+    - `node_region`: the region of the node VMs. It needs to be the same as the Ansible monitor VM.
+    - `node_size`: the size of the VM. It vary depending on the scale of project. For exploration, we recommend Standard B1s.
+See the example below:
 
         ```
-        node_image: Kadena Community Edition, v1.1.4.0
+        node_image:
+          offer: scalalebft
+          publisher: kadenallc
+          sku: kadena-community-edition
+          version: latest
         node_count: 4
         node_region: East US
         node_size: Standard_B1s
 
         ```
 
-    You are now ready to start using the Ansible playbooks!
+    You are now ready to start using the Ansible playbooks! For more guidance, refer
+    to [Launching the Demo](#launching-the-demo).
 
 ## Ansible Playbooks
 
@@ -157,14 +169,20 @@ $ tree <kadena-directory>
 
 ## VM Requirements
 
-The Ansible monitor VM should be configured as follows:
+Prerequisites:
+1.  Create a resource group with a the name `kadenaResourceGroup`.
+2.  The resource group, `kadenaResourceGroup` must have a storage account named `kadenaStorage`
 
-1.  The monitor VM needs to be created in a resource group with a name `kadenaResourceGroup`.
-2.  The resource group, `kadenaResourceGroup` must have a storage account named `kadenastorage`
-3.  The monitor VM is built on the image, `Kadena Community Edition, v1.1.4.0`
-4.  The monitor VM uses admin name of `ubuntu` and SSH authentication with public key.
-5.  The size of monitor VM can be decided by user, but we recommend using a size greater than Standard B2s.
-6.  The monitor VM needs to allow Port 22 to manage Kadena Node VMs. See [Network Security Group (NSG) Requirements](#network-security-group-requirements) for more.
+The Ansible monitor VM should be configured as follows:
+1.  The resource group should be `kadenaResourceGroup`.
+2.  Choose any name for the "Virtual machine name", though we use `ansible-monitor`.
+3.  Select desired region (default is `East US`).
+4.  The monitor VM is build on the image `Kadena Scalable Permissioned Blockchain on Azure`.
+5.  Select desired size for the monitor VM. We recommend using a size greater than Standard B2s (the default is `Standard B2ms`).
+6.  For the authentication type, select `SSH public key`.
+7.  Set the authentication username to be `ubuntu`.
+8.  Copy and paste an SSH public key. This public key will be associated with the monitor VM being currently created and with the Kadena Node VMs that will be created later on.
+9.  Click on "Review + create", unless you wish to change the rest of the default monitor VM settings. Make sure that the monitor VM allows Port 22 access, as this is required for managing Kadena Node VMs. See [Network Security Group (NSG) Requirements](#network-security-group-requirements) for more.
 
 ## Network Security Group Requirements
 

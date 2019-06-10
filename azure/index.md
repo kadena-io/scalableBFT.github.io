@@ -35,7 +35,7 @@ layout: default
 3.  Spin up a VM with Kadena's ScalableBFT Image with the requirements specified in [VM Requirements](#vm-requirements). This will serve as the Ansible monitor VM.
 4.  Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
     viewable: `chmod 400 /path/to/keypair`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
-    will not work. See [here](<https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys>) for how to set up SSH keys.
+    will not work. See [here](<https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys>) for instructions on setting up SSH keys.
 5.  Add the key pair(s) of the monitor and Kadena node VMs to the `ssh-agent`:
     `ssh-add /path/to/keypair`
 6.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <admin-user>@<vm-public-ip>`. The default `<admin-user>` is `ubuntu`.
@@ -68,12 +68,13 @@ layout: default
        - `version`: the Kadena ScalableBFT image SKU version.
     - `node_count`: the number of nodes you'd like to spin up.
     - `node_region`: the region of the node VMs. It needs to be the same as the Ansible monitor VM.
-    - `node_size`: the size of the VM. It vary depending on the scale of project. For exploration, we recommend Standard B1s.
+    - `node_size`: the size of the VM. It varies depending on the scale of project. For exploration, we recommend Standard B1s. For high intensity projects, we recommend a beefier machine.
+
 See the example below:
 
         ```
         node_image:
-          offer: scalalebft
+          offer: scalablebft
           publisher: kadenallc
           sku: kadena-community-edition
           version: latest
@@ -83,8 +84,8 @@ See the example below:
 
         ```
 
-    You are now ready to start using the Ansible playbooks! For more guidance, refer
-    to [Launching the Demo](#launching-the-demo).
+  You are now ready to start using the Ansible playbooks! For more guidance, refer
+  to [Launching the Demo](#launching-the-demo).
 
 ## Ansible Playbooks
 

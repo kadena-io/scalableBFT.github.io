@@ -45,7 +45,7 @@ layout: default
     ```
     az login
     ```
-9.  Create a Service Principle in your Azure Active Directory. This is to use [Azure's Dynamic Inventory](<https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories>) with Ansible. The User is required to have a directory role of 'Application Administrator' or higher on Azure Active Directory to perform this. To retrieve the credentials associated with the Service Principle, run the following command and save its result:
+9.  Create a Service Principal in your Azure Active Directory. This is to use [Azure's Dynamic Inventory](<https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories>) with Ansible. The User is required to have a directory role of 'Application Administrator' or higher on Azure Active Directory to perform this. To retrieve the credentials associated with the Service Principal, run the following command and save its result:
 
     ```
     az ad sp create-for-rbac --query '{"client_id": appId, "secret": password, "tenant": tenant}'
@@ -66,9 +66,10 @@ layout: default
     - `node_image`:
        - `sku`: the Kadena ScalableBFT image SKU Id.
        - `version`: the Kadena ScalableBFT image SKU version.
-    - `node_count`: the number of nodes you'd like to spin up.
+    - `node_count`: the number of nodes you'd like to spin up. The community version of ScalableBFT supports maximum of 4 nodes.
     - `node_region`: the region of the node VMs. It needs to be the same as the Ansible monitor VM.
     - `node_size`: the size of the VM. It vary depending on the scale of project. For exploration, we recommend Standard B1s.
+
 See the example below:
 
         ```

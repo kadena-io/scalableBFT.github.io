@@ -31,14 +31,14 @@ layout: default
 ## Azure Quick Start
 
 1.  Create a resource Group with a name `kadenaResourceGroup`.
-2.  Create a Storage Account with the name `kadenaStorage`.
+2.  Create a Storage Account with a unique name of your choice in `kadenaResourceGroup`.
 3.  Spin up a VM with Kadena's ScalableBFT Image with the requirements specified in [VM Requirements](#vm-requirements). This will serve as the Ansible monitor VM.
 4.  Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
     viewable: `chmod 400 /path/to/keypair`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
     will not work. See [here](<https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys>) for instructions on setting up SSH keys.
 5.  Add the key pair(s) of the monitor and Kadena node VMs to the `ssh-agent`:
     `ssh-add /path/to/keypair`
-6.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <admin-user>@<vm-public-ip>`. The default `<admin-user>` is `ubuntu`.
+6.  SSH into the monitor instance using ssh-agent forwarding: `ssh -A <admin-user>@<vm-public-ip>`. The `<admin-user>` is `ubuntu`.
     This facilitates the Ansible monitor's task of managing different VMs by having access to their key pair.
 7.  Once logged into the monitor VM, locate the directory `kadena`.
 8.  Grant Ansible the ability to make API calls to Azure on your behalf. You can simply log in with the following command:
@@ -62,10 +62,13 @@ layout: default
     tenant=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     ```
 
-11. Edit the `ansible/user_vars.yml` and fill in required parameters. There are 5 parameters:
+11. Edit the `ansible/user_vars.yml` and fill in required parameters. There are 6 parameters:
     - `node_image`:
        - `sku`: the Kadena ScalableBFT image SKU Id.
        - `version`: the Kadena ScalableBFT image SKU version.
+    - `node_plan`:
+       - `name`: the Kadena ScalableBFT image SKU Id.
+    - `node_storage`: the name of the storage account you've created in kadenaResourceGroup.
     - `node_count`: the number of nodes you'd like to spin up. The community version of ScalableBFT supports maximum of 4 nodes.
     - `node_region`: the region of the node VMs. It needs to be the same as the Ansible monitor VM.
     - `node_size`: the size of the VM. It varies depending on the scale of project. For exploration, we recommend Standard B1s. For high intensity projects, we recommend a beefier machine.
@@ -78,6 +81,13 @@ node_image:
   publisher: kadenallc
   sku: kadena-community-edition
   version: latest
+
+node_plan:
+  name: kadena-community-edition
+  product: scalablebft
+  publisher: kadenallc
+
+node_storage: kadenastorage
 node_count: 4
 node_region: East US
 node_size: Standard_B1s
@@ -171,7 +181,7 @@ $ tree <kadena-directory>
 
 Prerequisites:
 1.  Create a resource group with a the name `kadenaResourceGroup`.
-2.  The resource group, `kadenaResourceGroup` must have a storage account named `kadenaStorage`
+2.  The resource group, `kadenaResourceGroup` must have a storage account.
 
 The Ansible monitor VM should be configured as follows:
 1.  The resource group should be `kadenaResourceGroup`.

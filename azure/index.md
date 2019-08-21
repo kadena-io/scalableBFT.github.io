@@ -79,11 +79,11 @@ See the example below:
 node_image:
   offer: scalablebft
   publisher: kadenallc
-  sku: kadena-community-edition
+  sku: kadena-blockchain
   version: latest
 
 node_plan:
-  name: kadena-community-edition
+  name: kadena-blockchain
   product: scalablebft
   publisher: kadenallc
 
@@ -219,9 +219,23 @@ The official guide on how to use Ansible's Azure modules:
 
 ---
 
-Kadena Version: 1.1.x
+Kadena Version: 1.2.0.0
 
 # Change Log
+
+- Version 1.2.0.0
+
+  - Upgrade to Pact version 3.2
+  - Includes Ansible playbooks for Azure deployment
+
+- Version 1.1.4.0
+
+  - Stability improvements
+  - Includes Ansible playbooks for AWS deployment
+  - Bug Fixes
+
+- Version 1.1.3.1
+  Includes Kadena Grafana dashboard
 
 - Version 1.1.3.0
 
@@ -255,7 +269,7 @@ Required:
 
 Optional:
 
-- `pact == v2.4`: See <https://github.com/kadena-io/pact#installing-pact-with-binary-distributions>.
+- `pact == v2.4` for Kadena v1.1.4.0 or `pact == v3.2` for Kadena v1.2.0.0: See <https://github.com/kadena-io/pact#installing-pact-with-binary-distributions>.
 - `rlwrap`: only used in `kadenaclient.sh` to enable Up-Arrow style history. Feel free to remove it from the script if you'd like to avoid installing it.
 - `tmux == v2.0`: only used for the local demo script `<kadena-directory>/bin/<OS-name>/start.sh`.
   A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.
@@ -766,7 +780,7 @@ Each kadena node, while running, will host a performance monitor at the URL `<no
 
 #### Sample Usage: Running Pact TodoMVC
 
-This repo also bundles the [Pact TodoMVC](https://github.com/kadena-io/pact-todomvc). Each Kadena node will host the frontend at `<nodeId.host>:<nodeId.port>/todomvc`. To initialized the `todomvc`:
+This repo also bundles the [Pact TodoMVC](https://github.com/kadena-io/pact-todomvc). Each Kadena node will host the frontend at `<nodeId.public-ip>:8000/todomvc`. To initialized the `todomvc`:
 
 ```
 $ cd <kadena-directory>
@@ -776,7 +790,7 @@ $ cd <kadena-directory>
 $ ./bin/<OS-name>/kadenaclient.sh
 node3> load todomvc/demo.yaml
 
-# go to host:port/todomvc
+# go to <public-ip-addr>:8000/todomvc
 ```
 
 NB: this demo can be run at the same time as the `payments` demo.

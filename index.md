@@ -187,9 +187,24 @@ group to the Ansible monitor and Kadena server instances.
 
 ---
 
-Kadena Version: 1.1.x
+Kadena Version: 1.2.0.0
 
 # Change Log
+
+- Version 1.2.0.0
+
+  - Upgrade to Pact version 3.2
+  - Includes Ansible playbooks for Azure deployment
+
+- Version 1.1.4.0
+
+  - Stability improvements
+  - Includes Ansible playbooks for AWS deployment
+  - Bug Fixes
+
+- Version 1.1.3.1
+
+  - Includes Kadena Grafana dashboard
 
 - Version 1.1.3.0
 
@@ -223,7 +238,7 @@ Required:
 
 Optional:
 
-- `pact == v2.4`: See <https://github.com/kadena-io/pact#installing-pact-with-binary-distributions>.
+- `pact == v2.4` for Kadena v1.1.4.0 or `pact == v3.2` for Kadena v1.2.0.0: See <https://github.com/kadena-io/pact#installing-pact-with-binary-distributions>.
 - `rlwrap`: only used in `kadenaclient.sh` to enable Up-Arrow style history. Feel free to remove it from the script if you'd like to avoid installing it.
 - `tmux == v2.0`: only used for the local demo script `<kadena-directory>/bin/<OS-name>/start.sh`.
   A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.

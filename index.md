@@ -187,9 +187,24 @@ group to the Ansible monitor and Kadena server instances.
 
 ---
 
-Kadena Version: 1.1.x
+Kadena Version: 1.2.0.0
 
 # Change Log
+
+- Version 1.2.0.0
+
+  - Upgrade to Pact version 3.2
+  - Includes Ansible playbooks for Azure deployment
+
+- Version 1.1.4.0
+
+  - Stability improvements
+  - Includes Ansible playbooks for AWS deployment
+  - Bug Fixes
+
+- Version 1.1.3.1
+
+  - Includes Kadena Grafana dashboard
 
 - Version 1.1.3.0
 

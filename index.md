@@ -734,7 +734,7 @@ Each kadena node, while running, will host a performance monitor at the URL `<no
 
 #### Sample Usage: Running Pact TodoMVC
 
-This repo also bundles the [Pact TodoMVC](https://github.com/kadena-io/pact-todomvc). Each Kadena node will host the frontend at `<nodeId.host>:<nodeId.port>/todomvc`. To initialized the `todomvc`:
+This repo also bundles the [Pact TodoMVC](https://github.com/kadena-io/pact-todomvc). Each Kadena node will host the frontend at `<nodeId.public-ip>:8000/todomvc`. To initialized the `todomvc`:
 
 ```
 $ cd <kadena-directory>
@@ -744,7 +744,7 @@ $ cd <kadena-directory>
 $ ./bin/<OS-name>/kadenaclient.sh
 node3> load todomvc/demo.yaml
 
-# go to host:port/todomvc
+# go to <public-ip-addr>:8000/todomvc
 ```
 
 NB: this demo can be run at the same time as the `payments` demo.

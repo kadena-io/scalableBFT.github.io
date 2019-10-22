@@ -1,5 +1,5 @@
 ---
-title: ScalableBFT on Azure
+title: Kadena Kuro on Azure
 layout: default
 ---
 
@@ -32,7 +32,7 @@ layout: default
 
 1.  Create a resource Group with a name `kadenaResourceGroup`.
 2.  Create a Storage Account with a unique name of your choice in `kadenaResourceGroup`.
-3.  Spin up a VM with Kadena's ScalableBFT Image with the requirements specified in [VM Requirements](#vm-requirements). This will serve as the Ansible monitor VM.
+3.  Spin up a VM with Kadena's Kuro Image with the requirements specified in [VM Requirements](#vm-requirements). This will serve as the Ansible monitor VM.
 4.  Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
     viewable: `chmod 400 /path/to/keypair`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
     will not work. See [here](<https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys>) for instructions on setting up SSH keys.
@@ -64,12 +64,12 @@ layout: default
 
 11. Edit the `ansible/user_vars.yml` and fill in required parameters. There are 6 parameters:
     - `node_image`:
-       - `sku`: the Kadena ScalableBFT image SKU Id.
-       - `version`: the Kadena ScalableBFT image SKU version.
+       - `sku`: the Kadena Kuro image SKU Id.
+       - `version`: the Kadena Kuro image SKU version.
     - `node_plan`:
-       - `name`: the Kadena ScalableBFT image SKU Id.
+       - `name`: the Kadena Kuro image SKU Id.
     - `node_storage`: the name of the storage account you've created in kadenaResourceGroup.
-    - `node_count`: the number of nodes you'd like to spin up. The community version of ScalableBFT supports maximum of 4 nodes.
+    - `node_count`: the number of nodes you'd like to spin up. The community version of Kuro supports maximum of 4 nodes.
     - `node_region`: the region of the node VMs. It needs to be the same as the Ansible monitor VM.
     - `node_size`: the size of the VM. It varies depending on the scale of project. For exploration, we recommend Standard B1s. For high intensity projects, we recommend a beefier machine.
 
@@ -141,7 +141,7 @@ Provide the desired settings when prompted. For more information, refer to the
 
 ## Launching the Demo
 
-Once you've completed the [Azure Quick Start](#azure-quick-start) instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:
+Once you've completed the [Azure Quick Start](#azure-quick-start) instructions, execute the following commands to boot up the Kuro servers and start the kadena-demo:
 
 ```
 $ cd kadena/

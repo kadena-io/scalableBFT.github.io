@@ -107,7 +107,7 @@ Provide the desired settings when prompted. For more information, refer to the
 
 ## Launching the Demo
 
-Once you've completed the [AWS Quick Start](#aws-quick-start) instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:
+Once you've completed the [AWS Quick Start](#aws-quick-start) instructions, execute the following commands to boot up the Kuro servers and start the kadena-demo:
 
 ```
 $ cd kadena-aws/

@@ -6,26 +6,28 @@
     <meta charset="UTF-8">
 
 <!-- Begin Jekyll SEO tag v2.5.0 -->
-<title>ScalableBFT on Azure | scalableBFT.github.io</title>
+<title>Kadena Kuro on Azure | scalableBFT.github.io</title>
 <meta name="generator" content="Jekyll v3.8.5" />
-<meta property="og:title" content="ScalableBFT on Azure" />
+<meta property="og:title" content="Kadena Kuro on Azure" />
 <meta property="og:locale" content="en_US" />
+<meta name="description" content="Quick Start Page of ScalableBFT on AWS and Azure" />
+<meta property="og:description" content="Quick Start Page of ScalableBFT on AWS and Azure" />
 <link rel="canonical" href="http://localhost:4000/azure/" />
 <meta property="og:url" content="http://localhost:4000/azure/" />
 <meta property="og:site_name" content="scalableBFT.github.io" />
 <script type="application/ld+json">
-{"@type":"WebPage","url":"http://localhost:4000/azure/","headline":"ScalableBFT on Azure","@context":"http://schema.org"}</script>
+{"description":"Quick Start Page of ScalableBFT on AWS and Azure","@type":"WebPage","url":"http://localhost:4000/azure/","headline":"Kadena Kuro on Azure","@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="/assets/css/style.css?v=a17b98638c3c961d909c507aecee1b0e0574c804">
+    <link rel="stylesheet" href="/assets/css/style.css?v=9091ad06aac86188f2f3ab3aa38e0ce7033bca28">
   </head>
   <body>
 
     <header class="page-header" role="banner">
-      <h1 class="project-name">ScalableBFT on Azure</h1>
+      <h1 class="project-name">Kadena Kuro on Azure</h1>
     </header>
 
     <main id="content" class="main-content" role="main">
@@ -69,14 +71,14 @@
 
 <ol>
   <li>Create a resource Group with a name <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
-  <li>Create a Storage Account with the name <code class="highlighter-rouge">kadenaStorage</code>.</li>
-  <li>Spin up a VM with Kadena’s ScalableBFT Image with the following requirements. (See <a href="#vm-requirements">VM Requirements</a>). This will serve as the Ansible monitor VM. <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json">https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json</a></li>
+  <li>Create a Storage Account with a unique name of your choice in <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
+  <li>Spin up a VM with Kadena’s Kuro Image with the requirements specified in <a href="#vm-requirements">VM Requirements</a>. This will serve as the Ansible monitor VM.</li>
   <li>Ensure that the key pair(s) of the monitor and Kadena node VMs are not publicly
 viewable: <code class="highlighter-rouge">chmod 400 /path/to/keypair</code>. Otherwise, SSH and any service that rely on it (i.e. Ansible)
-will not work. See <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys">https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys</a> for setting up SSH keys.</li>
+will not work. See <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys">here</a> for instructions on setting up SSH keys.</li>
   <li>Add the key pair(s) of the monitor and Kadena node VMs to the <code class="highlighter-rouge">ssh-agent</code>:
 <code class="highlighter-rouge">ssh-add /path/to/keypair</code></li>
-  <li>SSH into the monitor instance using ssh-agent forwarding: <code class="highlighter-rouge">ssh -A &lt;admin-user&gt;@&lt;vm-public-ip&gt;</code>. The default <code class="highlighter-rouge">&lt;admin-user&gt;</code> is <code class="highlighter-rouge">ubuntu</code>.
+  <li>SSH into the monitor instance using ssh-agent forwarding: <code class="highlighter-rouge">ssh -A &lt;admin-user&gt;@&lt;vm-public-ip&gt;</code>. The <code class="highlighter-rouge">&lt;admin-user&gt;</code> is <code class="highlighter-rouge">ubuntu</code>.
 This facilitates the Ansible monitor’s task of managing different VMs by having access to their key pair.</li>
   <li>Once logged into the monitor VM, locate the directory <code class="highlighter-rouge">kadena</code>.</li>
   <li>Grant Ansible the ability to make API calls to Azure on your behalf. You can simply log in with the following command:
@@ -84,14 +86,14 @@ This facilitates the Ansible monitor’s task of managing different VMs by havin
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Create Azure Active Directory service principal and save credentials file. This is to use Azure’s Dynamic Inventory with Ansible. See <a href="https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories">https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories</a>. User is required to have a directory role of Application Administrator or higher on Azure Active Directory to perform this. Run the following command.</p>
+    <p>Create a Service Principal in your Azure Active Directory. This is to use <a href="https://docs.microsoft.com/en-us/azure/ansible/ansible-manage-azure-dynamic-inventories">Azure’s Dynamic Inventory</a> with Ansible. The User is required to have a directory role of ‘Application Administrator’ or higher on Azure Active Directory to perform this. To retrieve the credentials associated with the Service Principal, run the following command and save its result:</p>
 
     <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>az ad sp create-for-rbac --query '{"client_id": appId, "secret": password, "tenant": tenant}'
 az account show --query '{ subscription_id: id }'
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Create credentials file in ~/.azure/credentials path with the following format:</p>
+    <p>Using the result of task #9, create a credentials file in <code class="highlighter-rouge">~/.azure/credentials</code> path with the following format:</p>
 
     <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[default]
 subscription_id=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -100,21 +102,48 @@ secret=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 tenant=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 </code></pre></div>    </div>
   </li>
-  <li>
-    <p>Edit the <code class="highlighter-rouge">user_vars.yml</code> and fill in required parameters. There are 4 parameters: <code class="highlighter-rouge">node_image</code>, <code class="highlighter-rouge">node_count</code>, <code class="highlighter-rouge">node_region</code> and <code class="highlighter-rouge">node_size</code>. <code class="highlighter-rouge">node_image</code> is the image name of Kadena Scalable Permissioned Blockchain. <code class="highlighter-rouge">node_count</code> refers to the number of nodes you’d like to spin up. <code class="highlighter-rouge">node_region</code> is the region of the node VMs, and needs to be the same as the Ansible monitor VM. <code class="highlighter-rouge">node_size</code> can be decided based on the scale of project. For exploration, we recommend Standard B1s. See below as an example:</p>
-
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```
-node_image: Kadena Community Edition, v1.1.4.0
-node_count: 4
-node_region: East US
-node_size: Standard_B1s
-
-```
-</code></pre></div>    </div>
-
-    <p>You are now ready to start using the Ansible playbooks!</p>
+  <li>Edit the <code class="highlighter-rouge">ansible/user_vars.yml</code> and fill in required parameters. There are 6 parameters:
+    <ul>
+      <li><code class="highlighter-rouge">node_image</code>:
+        <ul>
+          <li><code class="highlighter-rouge">sku</code>: the Kadena Kuro image SKU Id.</li>
+          <li><code class="highlighter-rouge">version</code>: the Kadena Kuro image SKU version.</li>
+        </ul>
+      </li>
+      <li><code class="highlighter-rouge">node_plan</code>:
+        <ul>
+          <li><code class="highlighter-rouge">name</code>: the Kadena Kuro image SKU Id.</li>
+        </ul>
+      </li>
+      <li><code class="highlighter-rouge">node_storage</code>: the name of the storage account you’ve created in kadenaResourceGroup.</li>
+      <li><code class="highlighter-rouge">node_count</code>: the number of nodes you’d like to spin up. The community version of Kuro supports maximum of 4 nodes.</li>
+      <li><code class="highlighter-rouge">node_region</code>: the region of the node VMs. It needs to be the same as the Ansible monitor VM.</li>
+      <li><code class="highlighter-rouge">node_size</code>: the size of the VM. It varies depending on the scale of project. For exploration, we recommend Standard B1s. For high intensity projects, we recommend a beefier machine.</li>
+    </ul>
   </li>
 </ol>
+
+<p>See the example below:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">node_image</span><span class="pi">:</span>
+  <span class="na">offer</span><span class="pi">:</span> <span class="s">scalablebft</span>
+  <span class="na">publisher</span><span class="pi">:</span> <span class="s">kadenallc</span>
+  <span class="na">sku</span><span class="pi">:</span> <span class="s">kadena-blockchain</span>
+  <span class="na">version</span><span class="pi">:</span> <span class="s">latest</span>
+
+<span class="na">node_plan</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">kadena-blockchain</span>
+  <span class="na">product</span><span class="pi">:</span> <span class="s">scalablebft</span>
+  <span class="na">publisher</span><span class="pi">:</span> <span class="s">kadenallc</span>
+
+<span class="na">node_storage</span><span class="pi">:</span> <span class="s">kadenastorage</span>
+<span class="na">node_count</span><span class="pi">:</span> <span class="m">4</span>
+<span class="na">node_region</span><span class="pi">:</span> <span class="s">East US</span>
+<span class="na">node_size</span><span class="pi">:</span> <span class="s">Standard_B1s</span>
+</code></pre></div></div>
+
+<p>You are now ready to start using the Ansible playbooks! For more guidance, refer
+  to <a href="#launching-the-demo">Launching the Demo</a>.</p>
 
 <h2 id="ansible-playbooks">Ansible Playbooks</h2>
 
@@ -159,7 +188,7 @@ It stores the logs in <code class="highlighter-rouge">ansible/logs/</code>.</p>
 
 <h2 id="launching-the-demo">Launching the Demo</h2>
 
-<p>Once you’ve completed the <a href="#azure-quick-start">Azure Quick Start</a> instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:</p>
+<p>Once you’ve completed the <a href="#azure-quick-start">Azure Quick Start</a> instructions, execute the following commands to boot up the Kuro servers and start the kadena-demo:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd kadena/
 $ ansible-playbook ansible/start_instances.yml
@@ -195,15 +224,23 @@ This will start the Kadena Client and allow you to start interacting with the pr
 
 <h2 id="vm-requirements">VM Requirements</h2>
 
-<p>The Ansible monitor VM should be configured as follows:</p>
-
+<p>Prerequisites:</p>
 <ol>
-  <li>The monitor VM needs to be created in a resource group with a name <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
-  <li>The resource group, <code class="highlighter-rouge">kadenaResourceGroup</code> must have a storage account named <code class="highlighter-rouge">kadenastorage</code></li>
-  <li>The monitor VM is built on the image, <code class="highlighter-rouge">Kadena Community Edition, v1.1.4.0</code></li>
-  <li>The monitor VM uses admin name of <code class="highlighter-rouge">ubuntu</code> and SSH authentication with public key.</li>
-  <li>The size of monitor VM can be decided by user, but we recommend using a size greater than Standard B2s.</li>
-  <li>The monitor VM needs to allow Port 22 to manage Kadena Node VMs. See <a href="#network-security-group-requirements">Network Security Group (NSG) Requirements</a> for more.</li>
+  <li>Create a resource group with a the name <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
+  <li>The resource group, <code class="highlighter-rouge">kadenaResourceGroup</code> must have a storage account.</li>
+</ol>
+
+<p>The Ansible monitor VM should be configured as follows:</p>
+<ol>
+  <li>The resource group should be <code class="highlighter-rouge">kadenaResourceGroup</code>.</li>
+  <li>Choose any name for the “Virtual machine name”, though we use <code class="highlighter-rouge">ansible-monitor</code>.</li>
+  <li>Select desired region (default is <code class="highlighter-rouge">East US</code>).</li>
+  <li>The monitor VM is build on the image <code class="highlighter-rouge">Kadena Scalable Permissioned Blockchain on Azure</code>.</li>
+  <li>Select desired size for the monitor VM. We recommend using a size greater than Standard B2s (the default is <code class="highlighter-rouge">Standard B2ms</code>).</li>
+  <li>For the authentication type, select <code class="highlighter-rouge">SSH public key</code>.</li>
+  <li>Set the authentication username to be <code class="highlighter-rouge">ubuntu</code>.</li>
+  <li>Copy and paste an SSH public key. This public key will be associated with the monitor VM being currently created and with the Kadena Node VMs that will be created later on.</li>
+  <li>Click on “Review + create”, unless you wish to change the rest of the default monitor VM settings. Make sure that the monitor VM allows Port 22 access, as this is required for managing Kadena Node VMs. See <a href="#network-security-group-requirements">Network Security Group (NSG) Requirements</a> for more.</li>
 </ol>
 
 <h2 id="network-security-group-requirements">Network Security Group Requirements</h2>
@@ -233,11 +270,32 @@ any instance running the Kadena Client.</li>
 
 <hr />
 
-<p>Kadena Version: 1.1.x</p>
+<p>Kadena Version: 1.2.0.0</p>
 
 <h1 id="change-log">Change Log</h1>
 
 <ul>
+  <li>
+    <p>Version 1.2.0.0</p>
+
+    <ul>
+      <li>Upgrade to Pact version 3.2</li>
+      <li>Includes Ansible playbooks for Azure deployment</li>
+    </ul>
+  </li>
+  <li>
+    <p>Version 1.1.4.0</p>
+
+    <ul>
+      <li>Stability improvements</li>
+      <li>Includes Ansible playbooks for AWS deployment</li>
+      <li>Bug Fixes</li>
+    </ul>
+  </li>
+  <li>
+    <p>Version 1.1.3.1
+Includes Kadena Grafana dashboard</p>
+  </li>
   <li>
     <p>Version 1.1.3.0</p>
 
@@ -290,7 +348,7 @@ any instance running the Kadena Client.</li>
 <p>Optional:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">pact == v2.4</code>: See <a href="https://github.com/kadena-io/pact#installing-pact-with-binary-distributions">https://github.com/kadena-io/pact#installing-pact-with-binary-distributions</a>.</li>
+  <li><code class="highlighter-rouge">pact == v2.4</code> for Kadena v1.1.4.0 or <code class="highlighter-rouge">pact == v3.2</code> for Kadena v1.2.0.0: See <a href="https://github.com/kadena-io/pact#installing-pact-with-binary-distributions">https://github.com/kadena-io/pact#installing-pact-with-binary-distributions</a>.</li>
   <li><code class="highlighter-rouge">rlwrap</code>: only used in <code class="highlighter-rouge">kadenaclient.sh</code> to enable Up-Arrow style history. Feel free to remove it from the script if you’d like to avoid installing it.</li>
   <li><code class="highlighter-rouge">tmux == v2.0</code>: only used for the local demo script <code class="highlighter-rouge">&lt;kadena-directory&gt;/bin/&lt;OS-name&gt;/start.sh</code>.
 A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.</li>
@@ -788,7 +846,7 @@ node0&gt; loadMultiple 9000 3000
 
 <h4 id="sample-usage-running-pact-todomvc">Sample Usage: Running Pact TodoMVC</h4>
 
-<p>This repo also bundles the <a href="https://github.com/kadena-io/pact-todomvc">Pact TodoMVC</a>. Each Kadena node will host the frontend at <code class="highlighter-rouge">&lt;nodeId.host&gt;:&lt;nodeId.port&gt;/todomvc</code>. To initialized the <code class="highlighter-rouge">todomvc</code>:</p>
+<p>This repo also bundles the <a href="https://github.com/kadena-io/pact-todomvc">Pact TodoMVC</a>. Each Kadena node will host the frontend at <code class="highlighter-rouge">&lt;nodeId.public-ip&gt;:8000/todomvc</code>. To initialized the <code class="highlighter-rouge">todomvc</code>:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd &lt;kadena-directory&gt;
 
@@ -797,7 +855,7 @@ node0&gt; loadMultiple 9000 3000
 $ ./bin/&lt;OS-name&gt;/kadenaclient.sh
 node3&gt; load todomvc/demo.yaml
 
-# go to host:port/todomvc
+# go to &lt;public-ip-addr&gt;:8000/todomvc
 </code></pre></div></div>
 
 <p>NB: this demo can be run at the same time as the <code class="highlighter-rouge">payments</code> demo.</p>

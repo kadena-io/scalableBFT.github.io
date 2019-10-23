@@ -12,7 +12,7 @@ layout: default
     - [Instance Requirements](#instance-requirements)
     - [Security Group Requirements](#security-group-requirements)
     - [Further Reading](#further-reading)
-2.  [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
+2.  [Kuro Documentation](#kuro-documentation)
     - [Kadena Demo Quick Start](#kadena-demo-quick-start)
     - [Kadena server and client binaries](#kadena-server-and-client-binaries)
     - [General Considerations](#general-considerations)
@@ -22,7 +22,7 @@ layout: default
       - [Sample Usage: Running Pact TodoMVC](#sample-usage-running-pact-todomvc)
     - [Configuration File Documentation](#configuration-file-documentation)
 
-NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kadena Blockchain Documentation](#kadena-blockchain-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
+NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kuro Documentation](#kuro-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
 
 ---
 

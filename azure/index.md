@@ -12,7 +12,7 @@ layout: default
     - [Virtual Machine Requirements](#vm-requirements)
     - [Network Security Group (NSG) Requirements](#network-security-group-requirements)
     - [Further Reading](#further-reading)
-2.  [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
+2.  [Kuro Documentation](#kuro-documentation)
     - [Kadena Demo Quick Start](#kadena-demo-quick-start)
     - [Kadena server and client binaries](#kadena-server-and-client-binaries)
     - [General Considerations](#general-considerations)
@@ -215,7 +215,7 @@ The official guide on how to use Ansible's Azure modules:
 
 ---
 
-# Kadena Blockchain Documentation
+# Kuro Documentation
 
 ---
 

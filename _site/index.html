@@ -2,30 +2,32 @@
 <html lang="en-US">
   <head>
 
-    
+
     <meta charset="UTF-8">
 
 <!-- Begin Jekyll SEO tag v2.5.0 -->
-<title>ScalableBFT on AWS | scalableBFT.github.io</title>
+<title>Kadena Kuro on AWS</title>
 <meta name="generator" content="Jekyll v3.8.5" />
-<meta property="og:title" content="ScalableBFT on AWS" />
+<meta property="og:title" content="Kadena Kuro on AWS" />
 <meta property="og:locale" content="en_US" />
+<meta name="description" content="Quick Start Page of Kadena Kuro on AWS and Azure" />
+<meta property="og:description" content="Quick Start Page of Kadena Kuro on AWS and Azure" />
 <link rel="canonical" href="http://localhost:4000/" />
 <meta property="og:url" content="http://localhost:4000/" />
 <meta property="og:site_name" content="scalableBFT.github.io" />
 <script type="application/ld+json">
-{"name":"scalableBFT.github.io","@type":"WebSite","url":"http://localhost:4000/","headline":"ScalableBFT on AWS","@context":"http://schema.org"}</script>
+{"name":"scalableBFT.github.io","description":"Quick Start Page of Kadena Kuro on AWS and Azure","@type":"WebSite","url":"http://localhost:4000/","headline":"Kadena Kuro on AWS","@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#157878">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="/assets/css/style.css?v=a17b98638c3c961d909c507aecee1b0e0574c804">
+    <link rel="stylesheet" href="/assets/css/style.css?v=7196429ca009c94f9b6ab81fd6398e213231ff5b">
   </head>
   <body>
 
     <header class="page-header" role="banner">
-      <h1 class="project-name">ScalableBFT on AWS</h1>
+      <h1 class="project-name">Kadena Kuro on AWS</h1>
     </header>
 
     <main id="content" class="main-content" role="main">
@@ -42,7 +44,7 @@
       <li><a href="#further-reading">Further Reading</a></li>
     </ul>
   </li>
-  <li><a href="#kadena-blockchain-documentation">Kadena Blockchain Documentation</a>
+  <li><a href="#kuro-documentation">Kuro Documentation</a>
     <ul>
       <li><a href="#kadena-demo-quick-start">Kadena Demo Quick Start</a></li>
       <li><a href="#kadena-server-and-client-binaries">Kadena server and client binaries</a></li>
@@ -59,7 +61,7 @@
   </li>
 </ol>
 
-<p>NB: The <a href="#ansible-and-aws">Ansible and AWS</a> section is equivalent to <code class="highlighter-rouge">Ansible-README.md</code>, while the <a href="#kadena-blockchain-documentation">Kadena Blockchain Documentation</a> section is equivalent to <code class="highlighter-rouge">Kadena-README.md</code>. Both documentations can be found in <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/</code>.</p>
+<p>NB: The <a href="#ansible-and-aws">Ansible and AWS</a> section is equivalent to <code class="highlighter-rouge">Ansible-README.md</code>, while the <a href="#kuro-documentation">Kuro Documentation</a> section is equivalent to <code class="highlighter-rouge">Kadena-README.md</code>. Both documentations can be found in <code class="highlighter-rouge">&lt;kadena-directory&gt;/docs/</code>.</p>
 
 <hr />
 
@@ -68,7 +70,7 @@
 <hr />
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=LHV00WLiXxA"><img src="https://img.youtube.com/vi/LHV00WLiXxA/0.jpg" alt="Kadena ScalableBFT AWS Marketplace QuickStart Video" target="_blank" /></a>
+  <a href="https://www.youtube.com/watch?v=LHV00WLiXxA"><img src="https://img.youtube.com/vi/LHV00WLiXxA/0.jpg" alt="Kadena Kuro AWS Marketplace QuickStart Video" target="_blank" /></a>
 </div>
 
 <p>Watch the video above or follow the instructions below for AWS QuickStart instructions.</p>
@@ -76,7 +78,7 @@
 <h2 id="aws-quick-start">AWS Quick Start</h2>
 
 <ol>
-  <li>Spin up an EC2 instance with Kadena’s ScalableBFT AMI or with the desired configurations
+  <li>Spin up an EC2 instance with Kadena’s Kuro AMI or with the desired configurations
 (See <a href="#instance-requirements">Instance Requirements</a>). This will serve as the Ansible monitor instance.</li>
   <li>Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
 viewable: <code class="highlighter-rouge">chmod 400 /path/to/keypair.pem</code>. Otherwise, SSH and any service that rely on it (i.e. Ansible)
@@ -144,7 +146,7 @@ It stores the logs in <code class="highlighter-rouge">aws/logs/</code>.</p>
 
 <h2 id="launching-the-demo">Launching the Demo</h2>
 
-<p>Once you’ve completed the <a href="#aws-quick-start">AWS Quick Start</a> instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:</p>
+<p>Once you’ve completed the <a href="#aws-quick-start">AWS Quick Start</a> instructions, execute the following commands to boot up the Kuro servers and start the kadena-demo:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd kadena-aws/
 $ ansible-playbook aws/start_instances.yml
@@ -224,15 +226,39 @@ above suggestions: <a href="https://aws.amazon.com/blogs/apn/getting-started-wit
 
 <hr />
 
-<h1 id="kadena-blockchain-documentation">Kadena Blockchain Documentation</h1>
+<h1 id="kuro-documentation">Kuro Documentation</h1>
 
 <hr />
 
-<p>Kadena Version: 1.1.x</p>
+<p>Kadena Version: 1.2.0.0</p>
 
 <h1 id="change-log">Change Log</h1>
 
 <ul>
+  <li>
+    <p>Version 1.2.0.0</p>
+
+    <ul>
+      <li>Upgrade to Pact version 3.2</li>
+      <li>Includes Ansible playbooks for Azure deployment</li>
+    </ul>
+  </li>
+  <li>
+    <p>Version 1.1.4.0</p>
+
+    <ul>
+      <li>Stability improvements</li>
+      <li>Includes Ansible playbooks for AWS deployment</li>
+      <li>Bug Fixes</li>
+    </ul>
+  </li>
+  <li>
+    <p>Version 1.1.3.1</p>
+
+    <ul>
+      <li>Includes Kadena Grafana dashboard</li>
+    </ul>
+  </li>
   <li>
     <p>Version 1.1.3.0</p>
 
@@ -285,7 +311,7 @@ above suggestions: <a href="https://aws.amazon.com/blogs/apn/getting-started-wit
 <p>Optional:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">pact == v2.4</code>: See <a href="https://github.com/kadena-io/pact#installing-pact-with-binary-distributions">https://github.com/kadena-io/pact#installing-pact-with-binary-distributions</a>.</li>
+  <li><code class="highlighter-rouge">pact == v2.4</code> for Kadena v1.1.4.0 or <code class="highlighter-rouge">pact == v3.2</code> for Kadena v1.2.0.0: See <a href="https://github.com/kadena-io/pact#installing-pact-with-binary-distributions">https://github.com/kadena-io/pact#installing-pact-with-binary-distributions</a>.</li>
   <li><code class="highlighter-rouge">rlwrap</code>: only used in <code class="highlighter-rouge">kadenaclient.sh</code> to enable Up-Arrow style history. Feel free to remove it from the script if you’d like to avoid installing it.</li>
   <li><code class="highlighter-rouge">tmux == v2.0</code>: only used for the local demo script <code class="highlighter-rouge">&lt;kadena-directory&gt;/bin/&lt;OS-name&gt;/start.sh</code>.
 A very specific version of tmux is required because features were entirely removed in later version that preclude the script from working.</li>
@@ -783,7 +809,7 @@ node0&gt; loadMultiple 9000 3000
 
 <h4 id="sample-usage-running-pact-todomvc">Sample Usage: Running Pact TodoMVC</h4>
 
-<p>This repo also bundles the <a href="https://github.com/kadena-io/pact-todomvc">Pact TodoMVC</a>. Each Kadena node will host the frontend at <code class="highlighter-rouge">&lt;nodeId.host&gt;:&lt;nodeId.port&gt;/todomvc</code>. To initialized the <code class="highlighter-rouge">todomvc</code>:</p>
+<p>This repo also bundles the <a href="https://github.com/kadena-io/pact-todomvc">Pact TodoMVC</a>. Each Kadena node will host the frontend at <code class="highlighter-rouge">&lt;nodeId.public-ip&gt;:8000/todomvc</code>. To initialized the <code class="highlighter-rouge">todomvc</code>:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd &lt;kadena-directory&gt;
 
@@ -792,7 +818,7 @@ node0&gt; loadMultiple 9000 3000
 $ ./bin/&lt;OS-name&gt;/kadenaclient.sh
 node3&gt; load todomvc/demo.yaml
 
-# go to host:port/todomvc
+# go to &lt;public-ip-addr&gt;:8000/todomvc
 </code></pre></div></div>
 
 <p>NB: this demo can be run at the same time as the <code class="highlighter-rouge">payments</code> demo.</p>
@@ -945,9 +971,9 @@ Endpoints:
 
 
       <footer class="site-footer">
-        
-          <span class="site-footer-owner">ScalableBFT is maintained by <a href="https://github.com/kadena-io">kadena-io</a>.</span>
-        
+
+          <span class="site-footer-owner">Kuro is maintained by <a href="https://github.com/kadena-io">kadena-io</a>.</span>
+
         <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
       </footer>
     </main>

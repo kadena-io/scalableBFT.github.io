@@ -1,5 +1,5 @@
 ---
-title: ScalableBFT on AWS
+title: Kadena Kuro on AWS
 layout: default
 ---
 
@@ -12,7 +12,7 @@ layout: default
     - [Instance Requirements](#instance-requirements)
     - [Security Group Requirements](#security-group-requirements)
     - [Further Reading](#further-reading)
-2.  [Kadena Blockchain Documentation](#kadena-blockchain-documentation)
+2.  [Kuro Documentation](#kuro-documentation)
     - [Kadena Demo Quick Start](#kadena-demo-quick-start)
     - [Kadena server and client binaries](#kadena-server-and-client-binaries)
     - [General Considerations](#general-considerations)
@@ -22,7 +22,7 @@ layout: default
       - [Sample Usage: Running Pact TodoMVC](#sample-usage-running-pact-todomvc)
     - [Configuration File Documentation](#configuration-file-documentation)
 
-NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kadena Blockchain Documentation](#kadena-blockchain-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
+NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-README.md`, while the [Kuro Documentation](#kuro-documentation) section is equivalent to `Kadena-README.md`. Both documentations can be found in `<kadena-directory>/docs/`.
 
 ---
 
@@ -31,14 +31,14 @@ NB: The [Ansible and AWS](#ansible-and-aws) section is equivalent to `Ansible-RE
 ---
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=LHV00WLiXxA"><img src="https://img.youtube.com/vi/LHV00WLiXxA/0.jpg" alt="Kadena ScalableBFT AWS Marketplace QuickStart Video" target="_blank"></a>
+  <a href="https://www.youtube.com/watch?v=LHV00WLiXxA"><img src="https://img.youtube.com/vi/LHV00WLiXxA/0.jpg" alt="Kadena Kuro AWS Marketplace QuickStart Video" target="_blank"></a>
 </div>
 
 Watch the video above or follow the instructions below for AWS QuickStart instructions.
 
 ## AWS Quick Start
 
-1.  Spin up an EC2 instance with Kadena's ScalableBFT AMI or with the desired configurations
+1.  Spin up an EC2 instance with Kadena's Kuro AMI or with the desired configurations
     (See [Instance Requirements](#instance-requirements)). This will serve as the Ansible monitor instance.
 2.  Ensure that the key pair(s) of the monitor and Kadena server instances are not publicly
     viewable: `chmod 400 /path/to/keypair.pem`. Otherwise, SSH and any service that rely on it (i.e. Ansible)
@@ -107,7 +107,7 @@ Provide the desired settings when prompted. For more information, refer to the
 
 ## Launching the Demo
 
-Once you've completed the [AWS Quick Start](#aws-quick-start) instructions, execute the following commands to boot up the ScalableBFT servers and start the kadena-demo:
+Once you've completed the [AWS Quick Start](#aws-quick-start) instructions, execute the following commands to boot up the Kuro servers and start the kadena-demo:
 
 ```
 $ cd kadena-aws/
@@ -183,7 +183,7 @@ group to the Ansible monitor and Kadena server instances.
 
 ---
 
-# Kadena Blockchain Documentation
+# Kuro Documentation
 
 ---
 
